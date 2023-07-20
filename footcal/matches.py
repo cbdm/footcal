@@ -3,26 +3,7 @@ import json
 from auth import APIURL, HEADERS
 from datetime import date, timedelta
 from typing import List
-from dataclasses import dataclass
-
-
-@dataclass
-class Match:
-    id: int
-    ref_name: str
-    match_utc_ts: str
-    venue_id: str
-    venue_name: str
-    venue_city: str
-    league_id: str
-    league_name: str
-    home_team_id: str
-    away_team_id: str
-    home_team_name: str
-    away_team_name: str
-    status: str
-    home_score: int = None
-    away_score: int = None
+from custom_types import Match
 
 
 def get_matches(team_id: str, start_date: date, end_date: date, season: str) -> str:
