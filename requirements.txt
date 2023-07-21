@@ -1,6 +1,5 @@
 flask==2.3.2
-hiredis==2.2.3
 ics==0.7.2
+jsonpickle==3.0.1
 pip-chill==1.0.3
-redis==4.6.0
-requests==2.31.0
+upstash-redis==0.15.0

@@ -1,13 +1,13 @@
-import redis
+from upstash_redis import Redis
 from os import getenv
 from datetime import datetime, timedelta
-from pickle import dumps, loads
+from jsonpickle import dumps, loads
 from typing import Any
 
-db = redis.Redis(
-    host=getenv("REDIS_HOST", "localhost"),
-    port=getenv("REDIS_PORT", 6379),
-    password=getenv("REDIS_PASS", "<password>"),
+
+db = Redis(
+    url=getenv("REDIS_URL", "localhost"),
+    token=getenv("REDIS_TOKEN", "********"),
 )
 
 
@@ -29,4 +29,4 @@ def update(key: str, new_val: Any) -> None:
 
 
 if __name__ == "__main__":
-    print(db.keys())
+    print(db.keys("*"))
