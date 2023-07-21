@@ -1,4 +1,6 @@
 flask==2.3.2
+hiredis==2.2.3
 ics==0.7.2
 pip-chill==1.0.3
+redis==4.6.0
 requests==2.31.0

@@ -1,5 +1,6 @@
 import requests
 import json
+import cache
 from auth import APIURL, HEADERS
 from datetime import date, timedelta
 from typing import List
@@ -50,6 +51,13 @@ def parse_matches(mresp: str) -> List[Match]:
 def fetch(
     team_id: str, start_date: date = None, end_date: date = None, season: str = None
 ) -> List[Match]:
+    # Check if we have this calendar cached.
+    lookup_key = f"team-cal/{team_id}"
+    cached = cache.query(lookup_key, max_age=timedelta(days=1))
+    if cached:
+        return cached
+
+    # Don't have a fresh cached copy, so let's create it.
     today = date.today()
     if start_date is None:
         # Defaults to results from up to a week ago.
@@ -68,7 +76,12 @@ def fetch(
         season = sresults.get("response", [today.year])[-1]
 
     mresp = get_matches(team_id, start_date, end_date, season)
-    return parse_matches(mresp)
+    new_data = parse_matches(mresp)
+
+    # Add the newly created calendar.
+    cache.update(lookup_key, new_data)
+
+    return new_data
 
 
 if __name__ == "__main__":

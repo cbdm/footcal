@@ -3,6 +3,8 @@ from auth import APIURL, HEADERS, MIN_LEFT_FOR_SEARCH, get_remaining_quota
 from typing import List
 from custom_types import Team, SearchQuotaExceeded
 import json
+import cache
+from datetime import timedelta
 
 
 def get_teams(user_query: str) -> str:
@@ -32,8 +34,19 @@ def parse_teams(tresp: str) -> List[Team]:
 
 
 def search_teams(user_query: str) -> List[Team]:
+    # Check if we have this search cached.
+    lookup_key = f"team-search/{user_query}"
+    cached = cache.query(lookup_key, max_age=timedelta(days=30))
+    if cached:
+        return cached
+
     tresp = get_teams(user_query)
-    return parse_teams(tresp)
+    new_data = parse_teams(tresp)
+
+    # Add the search results to the cache.
+    cache.update(lookup_key, new_data)
+
+    return new_data
 
 
 if __name__ == "__main__":
