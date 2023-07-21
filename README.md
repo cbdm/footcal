@@ -8,10 +8,10 @@ This is a new webapp with a goal to serve the upcoming soccer schedule as an ics
 3. Input ics calendar into preffered app (ex. Google Calendar)
 
 ## In development
-* Search feature
 * Allow user to pick event length and calendar type (league calendar instead of one team).
-* A help page
 
+## Future plans (help wanted!)
+* A better user interface :)
 
 ## Contributions welcome
 The webapp is very barebones for now. Please look at the [Issues](https://github.com/cbdm/footcal/issues) page for contributions. How?
