@@ -10,6 +10,7 @@ from ics import Calendar, Event
 from datetime import timedelta
 from custom_types import SearchQuotaExceeded
 from auth import get_quota_reset
+from cache import list_cached_calendars
 
 app = Flask(__name__)
 app.debug = True
@@ -18,7 +19,17 @@ app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", "abc")
 
 @app.route("/", methods=("GET",))
 def index():
-    return """<html>
+    cal_list = []
+    for (ID, name) in sorted(list_cached_calendars(), key=lambda x: x[1]):
+        row = f"<tr>\n\t<td>{name}</td>\n"
+        row += f"\t<td>{ID}</td>\n"
+        cal_url = f"{request.host_url}team/{ID}"
+        row += f'\t<td><a href="{cal_url}">{cal_url}</a></td>\n'
+        row += "</tr>\n"
+        cal_list.append(row)
+
+    return (
+        """<html>
     <head>
     <style>
     table {
@@ -46,32 +57,16 @@ def index():
     Please feel free to contribute with PRs, suggestions, requests, etc. at <a href="https://github.com/cbdm/footcal">https://github.com/cbdm/footcal</a><br/>
     <br/>
     If you know the api-football ID for the team you want, you can create a calendar with /team/ID in this URL.<br/>
-    If you used to use onefootball-ics before it stopped working, you can probably find the ID below:
+    You can find the already created calendars in the table below:
     <table>
     <tr>
-        <th>Old ID</th>
-        <th>New ID</th>
+        <th>Team Name</th>
+        <th>Team ID</th>
+        <th>Calendar URL</th>
     </tr>
-    <tr>
-        <td>atletico-mineiro-1683</td>
-        <td>1062</td>
-    </tr>
-    <tr>
-        <td>brazil-79</td>
-        <td>6</td>
-    </tr>
-    <tr>
-        <td>mexico-69</td>
-        <td>16</td>
-    </tr>
-    <tr>
-        <td>borussia-dortmund-155</td>
-        <td>165</td>
-    </tr>
-    <tr>
-        <td>internacional-1799</td>
-        <td>119</td>
-    </tr>
+    """
+        + "\n".join(cal_list)
+        + """
     </table>
     <br/>
     If you need an ID for a different team, you can try going to <a href="/search">/search</a>.<br/>
@@ -79,12 +74,12 @@ def index():
     </body>
     </html>
     """
+    )
 
 
 @app.route("/search/", methods=("GET", "POST"))
 def search_ID():
     if request.method == "POST":
-        query = request.form.get("query", "")
         query = request.form.get("query", "").strip()
 
         result_html = """<html>
