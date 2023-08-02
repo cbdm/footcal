@@ -85,6 +85,7 @@ def index():
 def search_ID():
     if request.method == "POST":
         query = request.form.get("query", "")
+        query = request.form.get("query", "").strip()
 
         result_html = """<html>
             <head>
