@@ -209,7 +209,7 @@ def team_cal(team_id):
     for m in matches.fetch(team_id):
         e = Event()
         sep = "-"
-        if m.status == "FT":
+        if m.status in ("FT", "PEN"):
             sep = f"({m.home_score}) - ({m.away_score})"
         e.name = f"[{m.league_name}] {m.home_team_name} {sep} {m.away_team_name}"
         e.begin = m.match_utc_ts
