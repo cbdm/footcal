@@ -65,7 +65,7 @@ def fetch(
 
     if end_date is None:
         # Future matches until end of next month.
-        end_date = date(today.year, (today.month + 1) % 12 + 1, 1)
+        end_date = today + timedelta(weeks=4)
 
     if season is None:
         # Get the latest season from the team.
