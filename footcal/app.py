@@ -19,14 +19,23 @@ app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", "abc")
 
 @app.route("/", methods=("GET",))
 def index():
-    cal_list = []
-    for (ID, name) in sorted(list_cached_calendars(), key=lambda x: x[1]):
+    team_list = []
+    for (ID, name) in sorted(list_cached_calendars(team=True), key=lambda x: x[1]):
         row = f"<tr>\n\t<td>{name}</td>\n"
         row += f"\t<td>{ID}</td>\n"
         cal_url = f"{request.host_url}team/{ID}"
         row += f'\t<td><a href="{cal_url}">{cal_url}</a></td>\n'
         row += "</tr>\n"
-        cal_list.append(row)
+        team_list.append(row)
+
+    comp_list = []
+    for (ID, name) in sorted(list_cached_calendars(team=False), key=lambda x: x[1]):
+        row = f"<tr>\n\t<td>{name}</td>\n"
+        row += f"\t<td>{ID}</td>\n"
+        cal_url = f"{request.host_url}comp/{ID}"
+        row += f'\t<td><a href="{cal_url}">{cal_url}</a></td>\n'
+        row += "</tr>\n"
+        comp_list.append(row)
 
     return (
         """<html>
@@ -65,12 +74,31 @@ def index():
         <th>Calendar URL</th>
     </tr>
     """
-        + "\n".join(cal_list)
+        + "\n".join(team_list)
         + """
     </table>
     <br/>
     If you need an ID for a different team, you can try going to <a href="/search">/search</a>.<br/>
+    <br/>
+    <b>NEW:</b> Competition calendars have been implemented!<br/>
+    If you know the api-football ID for the competition you want, you can create a calendar with /comp/ID in this URL.<br/>
+    You can find the already created calendars in the table below:
+    <table>
+    <tr>
+        <th>Competition Name</th>
+        <th>Competition ID</th>
+        <th>Calendar URL</th>
+    </tr>
+    """
+        + "\n".join(comp_list)
+        + """
+    </table>
+    <br/>
+    If you need an ID for a different competition, you can try going to <a href="/search-comp">/search-comp</a>.<br/>
+    <br/>
+    <br/>
     Feel free to reach out with any questions <a href="mailto:footcal@cbdm.app">footcal@cbdm.app</a>
+    <br/>
     </body>
     </html>
     """
@@ -102,7 +130,7 @@ def search_ID():
             }
             </style>
             </head>
-            <body><h1>Search results</h1>\n"""
+            <body><h1>Team search results</h1>\n"""
         result_html += f"<h2>Search query: {query}</h2>\n"
 
         if not query:
@@ -121,7 +149,6 @@ def search_ID():
                         <th>Short Name</th>
                         <th>Country</th>
                         <th>Founded</th>
-                        <th>Club</th>
                     </tr>"""
 
                 for t in teams:
@@ -132,7 +159,6 @@ def search_ID():
                         <td>{t.short_name}</td>
                         <td>{t.country}</td>
                         <td>{t.founded}</td>
-                        <td>{t.club}</td>
                     </tr>"""
 
                 result_html += "</table>\n"
@@ -146,8 +172,90 @@ def search_ID():
         return result_html
 
     elif request.method == "GET":
-        return """<h1>Search</h1>
+        return """<h1>Team Search</h1>
         You can use the search box below to look for a team ID if you don't know it yet.<br/>
+        <br/>
+        <form method="post">
+        <label for="query">Search query:</label>
+        <input type="text" name="query" id="query"/>
+        <input type="submit" value="Search">
+        </form>
+        """
+
+
+@app.route("/search-comp/", methods=("GET", "POST"))
+def search_comp_ID():
+    if request.method == "POST":
+        query = request.form.get("query", "").strip()
+
+        result_html = """<html>
+            <head>
+            <style>
+            table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            }
+
+            td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            }
+
+            tr:nth-child(even) {
+            background-color: #dddddd;
+            }
+            </style>
+            </head>
+            <body><h1>Competition search results</h1>\n"""
+        result_html += f"<h2>Search query: {query}</h2>\n"
+
+        if not query:
+            result_html += (
+                "Cannot perform a blank search, please go back and try again."
+            )
+
+        else:
+            try:
+                competitions = search.search_comps(query)
+                result_html += """<table>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Competition Name</th>
+                        <th>Type</th>
+                        <th>Country</th>
+                        <th>Most Recent Season</th>
+                        <th>Season Start</th>
+                        <th>Season End</th>
+                    </tr>"""
+
+                for c in competitions:
+                    result_html += f"""<tr>
+                        <td><img src="{c.logo}" alt="{c.name}'s logo"></td>
+                        <td>{c.id}</td>
+                        <td>{c.name}</td>
+                        <td>{c.type}</td>
+                        <td>{c.country_name}</td>
+                        <td>{c.season}</td>
+                        <td>{c.season_start}</td>
+                        <td>{c.season_end}</td>
+                    </tr>"""
+
+                result_html += "</table>\n"
+
+            except SearchQuotaExceeded:
+                result_html += "The search couldn't be performed because we have exceeded our daily quota for performing searches. Sorry about that!\n"
+                result_html += (
+                    f"You can try again when it resets in {get_quota_reset()}s."
+                )
+
+        return result_html
+
+    elif request.method == "GET":
+        return """<h1>Competition Search</h1>
+        You can use the search box below to look for a competition ID if you don't know it yet.<br/>
         <br/>
         <form method="post">
         <label for="query">Search query:</label>
@@ -206,7 +314,28 @@ def help_page():
 @app.route("/team/<team_id>/", methods=("GET",))
 def team_cal(team_id):
     cal = Calendar()
-    for m in matches.fetch(team_id):
+    for m in matches.fetch(team=True, id=team_id):
+        e = Event()
+        sep = "-"
+        if m.status in ("FT", "PEN"):
+            sep = f"({m.home_score}) - ({m.away_score})"
+        e.name = f"[{m.league_name}] {m.home_team_name} {sep} {m.away_team_name}"
+        e.begin = m.match_utc_ts
+        e.duration = timedelta(hours=2)
+        e.description = (
+            f"""Venue: {m.venue_name} in {m.venue_city}.\nRef: {m.ref_name}."""
+        )
+        cal.events.add(e)
+
+    response = make_response(f"{cal.serialize()}")
+    response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
+    return response
+
+
+@app.route("/comp/<comp_id>/", methods=("GET",))
+def comp_cal(comp_id):
+    cal = Calendar()
+    for m in matches.fetch(team=False, id=comp_id):
         e = Event()
         sep = "-"
         if m.status in ("FT", "PEN"):

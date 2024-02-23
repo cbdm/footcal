@@ -7,12 +7,14 @@ from typing import List
 from custom_types import Match
 
 
-def get_matches(team_id: str, start_date: date, end_date: date, season: str) -> str:
-    """Requests the relevant matches for the given team."""
+def get_matches(
+    team: bool, id: str, start_date: date, end_date: date, season: str
+) -> str:
+    """Requests the relevant matches for the given team/competition."""
     mresp = requests.get(
         f"{APIURL}/fixtures",
         params={
-            "team": team_id,
+            "team" if team else "league": id,
             "from": start_date.isoformat(),
             "to": end_date.isoformat(),
             "season": season,
@@ -49,10 +51,14 @@ def parse_matches(mresp: str) -> List[Match]:
 
 
 def fetch(
-    team_id: str, start_date: date = None, end_date: date = None, season: str = None
+    team: bool,
+    id: str,
+    start_date: date = None,
+    end_date: date = None,
+    season: str = None,
 ) -> List[Match]:
     # Check if we have this calendar cached.
-    lookup_key = f"team-cal/{team_id}"
+    lookup_key = f"{'team' if team else 'comp'}-cal/{id}"
     cached = cache.query(lookup_key, max_age=timedelta(days=1))
     if cached:
         return cached
@@ -68,14 +74,26 @@ def fetch(
         end_date = today + timedelta(weeks=4)
 
     if season is None:
-        # Get the latest season from the team.
-        sresp = requests.get(
-            f"{APIURL}/teams/seasons", params={"team": f"{team_id}"}, headers=HEADERS
-        )
-        sresults = json.loads(sresp.text)
-        season = sresults.get("response", [today.year])[-1]
+        if team:
+            # Get the latest season for the team.
+            sresp = requests.get(
+                f"{APIURL}/teams/seasons", params={"team": f"{id}"}, headers=HEADERS
+            )
+            sresults = json.loads(sresp.text)
+            season = sresults.get("response", [today.year])[-1]
 
-    mresp = get_matches(team_id, start_date, end_date, season)
+        else:
+            # Get the latest season for the competition.
+            sresp = requests.get(
+                f"{APIURL}/leagues", params={"id": id}, headers=HEADERS
+            )
+            sresults = json.loads(sresp.text)
+            try:
+                season = sresults["response"][0]["seasons"][-1]["year"]
+            except KeyError:
+                season = [today.year]
+
+    mresp = get_matches(team, id, start_date, end_date, season)
     new_data = parse_matches(mresp)
 
     # Add the newly created calendar.
@@ -85,4 +103,5 @@ def fetch(
 
 
 if __name__ == "__main__":
-    print(fetch(team_id=1062))
+    print(fetch(team=True, id=1062))
+    print(fetch(team=False, id=2))

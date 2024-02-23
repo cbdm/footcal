@@ -31,6 +31,19 @@ class Team:
     logo: str
 
 
+@dataclass
+class Competition:
+    id: int
+    name: str
+    type: str
+    country_name: str
+    country_code: str
+    season: int
+    season_start: str
+    season_end: str
+    logo: str
+
+
 class SearchQuotaExceeded(Exception):
     "Raised when there is no more available quota for search requests."
     pass

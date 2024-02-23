@@ -28,20 +28,23 @@ def update(key: str, new_val: Any) -> None:
     db.set(key, dumps(data))
 
 
-def list_cached_calendars() -> List[str]:
+def list_cached_calendars(team: bool) -> List[str]:
     cached_cals = []
-    for key in db.keys("team-cal/*"):
-        team_id = key[len("team-cal/") :]
+    for key in db.keys(f"{'team' if team else 'comp'}-cal/*"):
+        team_id = key[len(f"{'team' if team else 'comp'}-cal/") :]
         calendar = loads(db.get(key))["value"]
         if not calendar:
             continue
         match = calendar[0]
-        team_name = (
-            match.home_team_name
-            if team_id == f"{match.home_team_id}"
-            else match.away_team_name
-        )
-        cached_cals.append((team_id, team_name))
+        if team:
+            name = (
+                match.home_team_name
+                if team_id == f"{match.home_team_id}"
+                else match.away_team_name
+            )
+        else:
+            name = match.league_name
+        cached_cals.append((team_id, name))
     return cached_cals
 
 
