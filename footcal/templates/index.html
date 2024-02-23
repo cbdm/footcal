@@ -16,7 +16,10 @@
         <tr>
             <td> {{name}} </td>
             <td> {{ID}} </td>
-            <td> <a href="{{ request.host_url }}team/{{ ID }}">{{ request.host_url }}team/{{ ID }}</a> </td>
+            <td>
+                <a href="{{ request.host_url }}team/{{ ID }}">{{ request.host_url }}team/{{ ID }}</a>
+                <button onclick="copyToClipboard('{{ request.host_url }}team/{{ ID }}')">copy</button>
+            </td>
         </tr>
         {% endfor %}
     </table>
@@ -40,7 +43,10 @@
         <tr>
             <td> {{ name }} </td>
             <td> {{ ID}} </td>
-            <td> <a href="{{ request.host_url }}comp/{{ ID }}">{{ request.host_url }}comp/{{ ID }}</a> </td>
+            <td>
+                <a href="{{ request.host_url }}comp/{{ ID }}">{{ request.host_url }}comp/{{ ID }}</a> 
+                <button onclick="copyToClipboard('{{ request.host_url }}comp/{{ ID }}')">copy</button>
+            </td>
         </tr>
         {% endfor %}
     </table>
