@@ -1,56 +1,58 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    Welcome to FootCal!<br/>
+    <h3>Welcome to FootCal!</h3>
     This app lets you add the games of your favorite team (or competition) to your personal calendar.
 
-    <h2>Team Calendars</h2>
-    You can find the team calendars already created in the table below:
-    <table>
-        <tr>
-            <th>Team Name</th>
-            <th>Team ID</th>
-            <th>Calendar URL</th>
-        </tr>
-        {% for (ID, name) in team_list %}
-        <tr>
-            <td> {{name}} </td>
-            <td> {{ID}} </td>
-            <td>
-                <a href="{{ request.host_url }}team/{{ ID }}">{{ request.host_url }}team/{{ ID }}</a>
-                <button onclick="copyToClipboard('{{ request.host_url }}team/{{ ID }}')">copy</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="row">
+        <div class="two_columns_no_borders">
+            <h2>Team Calendars</h2>
+            You can find the team calendars already created in the table below:
+            <table>
+                <tr>
+                    <th>Team Name</th>
+                    <th>Team ID</th>
+                    <th>Calendar URL</th>
+                </tr>
+                {% for (ID, name) in team_list %}
+                <tr>
+                    <td> {{name}} </td>
+                    <td> {{ID}} </td>
+                    <td>
+                        <a href="{{ request.host_url }}team/{{ ID }}">{{ request.host_url }}team/{{ ID }}</a>
+                        <button onclick="copyToClipboard('{{ request.host_url }}team/{{ ID }}')">copy</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
 
-    If you need an ID for a different team, you can try going to <a href="/search">/search</a>.<br/>
+            If you need an ID for a different team, you can try going to <a href="/search">/search</a>.<br/>
+        </div>
+        <div class="two_columns_no_borders">
+            <h2>Competition Calendars</h2>
 
-    <hr/>
+            <b>NEW:</b> Competition calendars have been implemented!<br/>
+            <br/>
+            You can find the competition calendars already created in the table below:
+            <table>
+                <tr>
+                    <th>Competition Name</th>
+                    <th>Competition ID</th>
+                    <th>Calendar URL</th>
+                </tr>
+                {% for (ID, name) in comp_list %}
+                <tr>
+                    <td> {{ name }} </td>
+                    <td> {{ ID}} </td>
+                    <td>
+                        <a href="{{ request.host_url }}comp/{{ ID }}">{{ request.host_url }}comp/{{ ID }}</a> 
+                        <button onclick="copyToClipboard('{{ request.host_url }}comp/{{ ID }}')">copy</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
 
-    <h2>Competition Calendars</h2>
-
-    <b>NEW:</b> Competition calendars have been implemented!<br/>
-    <br/>
-    You can find the competition calendars already created in the table below:
-    <table>
-        <tr>
-            <th>Competition Name</th>
-            <th>Competition ID</th>
-            <th>Calendar URL</th>
-        </tr>
-        {% for (ID, name) in comp_list %}
-        <tr>
-            <td> {{ name }} </td>
-            <td> {{ ID}} </td>
-            <td>
-                <a href="{{ request.host_url }}comp/{{ ID }}">{{ request.host_url }}comp/{{ ID }}</a> 
-                <button onclick="copyToClipboard('{{ request.host_url }}comp/{{ ID }}')">copy</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    If you need an ID for a different competition, you can try going to <a href="/search-comp">/search-comp</a>.<br/>
-
+            If you need an ID for a different competition, you can try going to <a href="/search-comp">/search-comp</a>.<br/>
+        </div>
+    </div>
 {% endblock %}

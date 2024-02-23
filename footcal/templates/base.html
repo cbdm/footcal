@@ -5,10 +5,35 @@
     {% block head%} {% endblock %}
     <title>FootCal{% block title %} {% endblock %}</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         .website_title {
             color: #009129;
             font-size: 3em;
             text-decoration: none;
+        }
+
+        /* Create two equal columns that floats next to each other */
+        .two_columns_no_borders {
+            float: left;
+            width: 50%;
+            padding: 10px;
+        }
+
+        /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+        @media screen and (max-width: 800px) {
+            .two_columns_no_borders {
+                width: 100%;
+            }
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         h2 {
