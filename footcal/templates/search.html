@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} ({{ "team" if team else "competition" }} search){% endblock %}</h1>
+
+    <form method="post">
+        <label for="query">Search query: </label>
+        <input type="text" name="query"
+               placeholder="{{ "atletico" if team else "libertadores"}}"
+               value="{{ request.form['query'] }}"></input>
+        <br/>
+        <input type ="submit" name="action" value="Search">
+    </form>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} (search results){% endblock %}</h1>
+    Matching {{ "teams" if team else "competitions" }} for query="{{ query }}":
+    
+    {% if team %}
+        <table>
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Team Name</th>
+                <th>Short Name</th>
+                <th>Country</th>
+                <th>Founded</th>
+            </tr>
+          {% for t in teams %}
+            <tr>
+                <td><img src="{{ t.logo }}" alt="{{ t.name }}'s logo"></td>
+                <td>{{ t.id }}</td>
+                <td>{{ t.name }}</td>
+                <td>{{ t.short_name }}</td>
+                <td>{{ t.country }}</td>
+                <td>{{ t.founded }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+    {% else %}
+        <table>
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Competition Name</th>
+                <th>Type</th>
+                <th>Country</th>
+                <th>Most Recent Season</th>
+                <th>Season Start</th>
+                <th>Season End</th>
+            </tr>
+          {% for c in comps %}
+            <tr>
+                <td><img src="{{ c.logo }}" alt="{{ c.name }}'s logo"></td>
+                <td>{{ c.id }}</td>
+                <td>{{ c.name }}</td>
+                <td>{{ c.type }}</td>
+                <td>{{ c.country_name }}</td>
+                <td>{{ c.season }}</td>
+                <td>{{ c.season_start }}</td>
+                <td>{{ c.season_end }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}

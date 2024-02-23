@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block head%} {% endblock %}
+    <title>FootCal{% block title %} {% endblock %}</title>
+    <style>
+        .website_title {
+            color: #009129;
+            font-size: 3em;
+            text-decoration: none;
+        }
+
+        h2 {
+            color: #009129;
+        }
+
+        .nav_bar {
+            color: #555555;
+            font-size: 2em;
+            margin-left: 75px;
+            text-decoration: none;
+        }
+
+        .alert {
+            font-size: large;
+            color: #d64161;
+            border-color: #555555;
+            border-width: 5px;
+            border-style: dotted;
+            width: 350px;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            }
+
+        tr:nth-child(even) {
+        background-color: #dddddd;
+        }
+        
+    </style>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8LKP8GN8SB"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-8LKP8GN8SB');
+    </script>
+</head>
+<body>
+    <nav>
+        <a class="website_title" href="{{ url_for('index') }}">FootCal</a>
+        <a class="nav_bar" href="{{ url_for('help_page') }}">help</a>
+        <a class="nav_bar" href="{{ url_for('search_ID') }}">search team</a>
+        <a class="nav_bar" href="{{ url_for('search_comp_ID') }}">search competition</a>
+    </nav>
+    <hr>
+    <div class="content">
+        {% for message in get_flashed_messages() %}
+            <div class="alert">{{ message }}</div>
+        {% endfor %}
+        {% block content %} {% endblock %}
+    </div>
+</body>
+<footer>
+    {% block footer %} {% endblock %}
+    <hr />
+    If you want to <a href="https://github.com/cbdm/footcal">contribute to the project</a>, or have any suggestions, <a href="mailto:footcal@cbdm.app">get in touch! (footcal@cbdm.app)</a>
+</footer>
+</html>
