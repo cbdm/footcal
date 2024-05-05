@@ -23,9 +23,10 @@
         <li>
             Next, once you know the ID for the team you want, you can create a URL that will have that team's game.
             Using the example above, we know the team ID is 1062.
-            Then, we can get the base url for this websice ({request.host_url}) and add /team/1062 at the end.
+            Then, we can get the base url for this website (<a href="{{ request.host_url }}">{{ request.host_url }}</a>) and add /team/1062 at the end.
             This would create a final url with <a href="{{ request.host_url }}team/1062">{{ request.host_url }}team/1062</a>, which is the calendar URL we need for the next step.
             If you want the calendar of a different team, you would just use the different ID in this part, replacing the information after the /team/.
+            You can also get the URL with the "copy calendar URL" button from the results page or from the homepage where we have the currently active calendars.
         </li>
         <li>
             Finally, you can enter this URL into your calendar service.
@@ -35,6 +36,9 @@
             Since your calendar should request updates occasionally, you only need to add it once, and everything else should be self-updating.
             Whenever your calendar service asks for an update, it will be at a later day, and thus this window-ed calendar will move forward.
             The only downside is that we don't give you past results, but that's not the goal of this app :)
+        </li>
+        <li>
+            If you want to add a calendar for a competition instead of a single team, you can follow these same instructions, but use <a href="{{ request.host_url }}search-comp">{{ request.host_url }}search-comp</a> 
         </li>
     </ol>
 
