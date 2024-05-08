@@ -12,11 +12,13 @@ from ics import Calendar, Event
 from datetime import timedelta
 from custom_types import SearchQuotaExceeded
 from auth import get_quota_reset
-from cache import list_cached_calendars
+from cache import setupDB, list_cached_calendars
 
 app = Flask(__name__)
 app.debug = True
 app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", "abc")
+
+setupDB(app)
 
 
 @app.route("/", methods=("GET",))
