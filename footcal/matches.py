@@ -6,6 +6,15 @@ from datetime import date, timedelta
 from typing import List
 from custom_types import Match
 
+# Maps the api-football status to messages to be displayed.
+status_map = {
+    "PST": "(Postponed) ",
+    "CANC": "(Cancelled) ",
+    "ABD": "(Abandoned) ",
+    "AWD": "(Not Played) ",
+    "WO": "(Not Played) ",
+}
+
 
 def get_matches(
     team: bool, id: str, start_date: date, end_date: date, season: str

@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import matches
 import search
 from os import getenv
@@ -86,7 +90,8 @@ def _create_calendar(team, id):
         sep = "-"
         if m.status in ("FT", "PEN"):
             sep = f"({m.home_score}) - ({m.away_score})"
-        e.name = f"[{m.league_name}] {m.home_team_name} {sep} {m.away_team_name}"
+        notes = matches.status_map.get(m.status, "")
+        e.name = f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}"
         e.begin = m.match_utc_ts
         e.duration = timedelta(hours=2)
         e.description = (
