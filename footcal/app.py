@@ -120,13 +120,21 @@ def comp_cal(comp_id):
 
 @app.route("/next/<type>/<id>/", methods=("GET",))
 def next_match(type, id):
+    cur_time = arrow.utcnow()
+
     if type not in ("team", "comp"):
-        return {"error": "Invalid type; accepted options are 'team' and 'comp'."}
+        return {
+            "teams": "N/A",
+            "competition": "N/A",
+            "start_time": f"{(cur_time + timedelta(days=29)).isoformat()}",
+            "extra_info": f"ERROR: invalid type; accepted options are 'team' and 'comp', but receive '{type}'",
+            "venue": "N/A",
+            "ref": "N/A",
+        }
 
     cal = _create_calendar(team=(type == "team"), id=id)
     next = None
     min_diff = timedelta(days=365)
-    cur_time = arrow.utcnow()
 
     for e in cal.events:
         match_end = e._begin + e._duration
@@ -139,17 +147,28 @@ def next_match(type, id):
 
     if next is None:
         return {
-            "match_info": "Couldn't find a match in the next 4 weeks.",
-            "start_time": "N/A",
-            "humanized": "N/A",
-            "extra_info": "N/A",
+            "teams": "N/A",
+            "competition": "N/A",
+            "start_time": f"{(cur_time + timedelta(days=29)).isoformat()}",
+            "extra_info": "Couldn't find a match in the next 4 weeks.",
+            "venue": "N/A",
+            "ref": "N/A",
         }
 
+    brace_index = next.name.index("]")
+    competition = next.name[1:brace_index]
+    teams = next.name[brace_index + 2 :]
+    venue, ref = next.description.split("\n")
+    venue = venue[len("Venue: ") : -1]
+    ref = ref[len("Ref: ") : -1]
+
     return {
-        "match_info": next.name,
-        "start_time": f"{next._begin.format('YYYY-MM-DD HH:mm')} UTC",
-        "humanized": f"start{'s' if (next._begin - cur_time) > timedelta(seconds=0) else 'ed'} {next._begin.humanize()}",
-        "extra_info": e.description.replace("\n", " "),
+        "teams": teams,
+        "competition": competition,
+        "start_time": f"{next._begin.isoformat()}",
+        "venue": venue,
+        "ref": ref,
+        "extra_info": "N/A",
     }
 
 
