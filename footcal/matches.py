@@ -89,7 +89,10 @@ def fetch(
                 f"{APIURL}/teams/seasons", params={"team": f"{id}"}, headers=HEADERS
             )
             sresults = json.loads(sresp.text)
-            season = sresults.get("response", [today.year])[-1]
+            seasons = [
+                s for s in sresults.get("response", [today.year]) if s <= today.year
+            ]
+            season = seasons[-1]
 
         else:
             # Get the latest season for the competition.
@@ -114,3 +117,4 @@ def fetch(
 if __name__ == "__main__":
     print(fetch(team=True, id=1062))
     print(fetch(team=False, id=2))
+    print(fetch(team=True, id=6))
