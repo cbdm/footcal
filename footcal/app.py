@@ -4,6 +4,7 @@ load_dotenv()
 
 import matches
 import search
+import arrow
 from os import getenv
 from flask import (
     Flask,
@@ -115,6 +116,41 @@ def comp_cal(comp_id):
     response = make_response(f"{cal.serialize()}")
     response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
     return response
+
+
+@app.route("/next/<type>/<id>/", methods=("GET",))
+def next_match(type, id):
+    if type not in ("team", "comp"):
+        return {"error": "Invalid type; accepted options are 'team' and 'comp'."}
+
+    cal = _create_calendar(team=(type == "team"), id=id)
+    next = None
+    min_diff = timedelta(days=365)
+    cur_time = arrow.utcnow()
+
+    for e in cal.events:
+        match_end = e._begin + e._duration
+        time_diff = match_end - cur_time
+        if time_diff < timedelta(seconds=0):
+            continue
+        if time_diff < min_diff:
+            min_diff = time_diff
+            next = e
+
+    if next is None:
+        return {
+            "match_info": "Couldn't find a match in the next 4 weeks.",
+            "start_time": "N/A",
+            "humanized": "N/A",
+            "extra_info": "N/A",
+        }
+
+    return {
+        "match_info": next.name,
+        "start_time": f"{next._begin.format('YYYY-MM-DD HH:mm')} UTC",
+        "humanized": f"start{'s' if (next._begin - cur_time) > timedelta(seconds=0) else 'ed'} {next._begin.humanize()}",
+        "extra_info": e.description.replace("\n", " "),
+    }
 
 
 if __name__ == "__main__":
