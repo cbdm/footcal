@@ -86,7 +86,7 @@ def help_page():
 
 def _create_calendar(team, id):
     cal = Calendar()
-    for m in matches.fetch(team=team, id=id):
+    for m in matches.fetch(team=team, id=id)["matches"]:
         e = Event()
         sep = "-"
         if m.status in ("FT", "PEN"):

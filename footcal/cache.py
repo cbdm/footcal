@@ -46,16 +46,17 @@ def setupDB(app):
     table = CachedData
 
 
-def query(key: str, max_age: timedelta) -> Any:
+def query(key: str, max_age: timedelta) -> tuple[Any, bool]:
+    """Returns a tuple with the stored value if any and a boolean indicating if the data is fresh."""
     record = table.query.get(key)
     if not record:
-        return None
+        return None, False
 
     data = loads(record.data) if record else None
-    if data["ts"] + max_age < datetime.utcnow():
-        return None
+    if data is None:
+        return None, False
 
-    return data["value"]
+    return data["value"], data["ts"] + max_age >= datetime.utcnow()
 
 
 def update(key: str, new_val: Any) -> None:
@@ -88,24 +89,7 @@ def list_cached_calendars(team: bool) -> List[str]:
 
         cal_id = entry.objkey[len(f"{'team' if team else 'comp'}-cal/") :]
         calendar = loads(entry.data)["value"]
-
-        # Ignore calendars that currently don't have any games.
-        # TODO: could add an entry in the JSON (or DB column) with the team/comp name so we can always display it.
-        if not calendar:
-            continue
-
-        match = calendar[0]
-
-        if team:
-            name = (
-                match.home_team_name
-                if cal_id == f"{match.home_team_id}"
-                else match.away_team_name
-            )
-
-        else:
-            name = match.league_name
-
+        name = calendar["info"].name
         cached_cals.append((cal_id, name))
 
     return cached_cals

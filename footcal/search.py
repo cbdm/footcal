@@ -36,8 +36,8 @@ def parse_teams(tresp: str) -> List[Team]:
 def search_teams(user_query: str) -> List[Team]:
     # Check if we have this search cached.
     lookup_key = f"team-search/{user_query}"
-    cached = cache.query(lookup_key, max_age=timedelta(days=30))
-    if cached:
+    cached, fresh = cache.query(lookup_key, max_age=timedelta(days=30))
+    if fresh:
         return cached
 
     tresp = get_teams(user_query)
@@ -80,8 +80,8 @@ def parse_comps(tresp: str) -> List[Competition]:
 def search_comps(user_query: str) -> List[Competition]:
     # Check if we have this search cached.
     lookup_key = f"comp-search/{user_query}"
-    cached = cache.query(lookup_key, max_age=timedelta(days=30))
-    if cached:
+    cached, fresh = cache.query(lookup_key, max_age=timedelta(days=30))
+    if fresh:
         return cached
 
     tresp = get_comps(user_query)
