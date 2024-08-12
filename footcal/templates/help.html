@@ -48,4 +48,10 @@
     You'll need to go to syncselect (<a href="https://calendar.google.com/calendar/u/0/syncselect">https://calendar.google.com/calendar/u/0/syncselect</a>) to be able to access this calendar on your other devices.<br/>
     Other services might have something similar to this, but I'm not familiar with those, sorry.
 
+    <h3>Outlook Calendar</h3>
+
+    If you're using Oulook.com as your calendar, it will not accept the default URL generated (e.g., <a href="{{ request.host_url }}team/1062">{{ request.host_url }}team/1062</a>) as a valid calendar. Instead, as far as I could debug, the URL needs to end in ".ics".<br/>
+    To solve that, you can add "/calendar.ics" to the end of it, so instead of <a href="{{ request.host_url }}team/1062">{{ request.host_url }}team/1062</a>, you should use <a href="{{ request.host_url }}team/1062/calendar.ics">{{ request.host_url }}team/1062/calendar.ics</a><br/>
+    Both links should generate calendars with the same events.
+
 {% endblock %}
