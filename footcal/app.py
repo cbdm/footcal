@@ -110,12 +110,22 @@ def team_cal(team_id):
     return response
 
 
+@app.route("/team/<team_id>/calendar.ics", methods=("GET",))
+def team_cal_ics(team_id):
+    return team_cal(team_id)
+
+
 @app.route("/comp/<comp_id>/", methods=("GET",))
 def comp_cal(comp_id):
     cal = _create_calendar(team=False, id=comp_id)
     response = make_response(f"{cal.serialize()}")
     response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
     return response
+
+
+@app.route("/comp/<comp_id>/calendar.ics", methods=("GET",))
+def comp_cal_ics(comp_id):
+    return comp_cal(comp_id)
 
 
 @app.route("/next/<type>/<id>/", methods=("GET",))
