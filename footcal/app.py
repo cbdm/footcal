@@ -102,14 +102,16 @@ def _create_calendar(team, id):
         )
         start_dt = datetime.fromtimestamp(m.match_utc_ts, tz=ZoneInfo("UTC"))
         e.add("dtstamp", dtstamp)
-        e.add("last-modified", dtstamp)
         e.add("dtstart", start_dt)
         e.add("dtend", start_dt + timedelta(hours=2))
         e.add("location", f"{m.venue_name}, {m.venue_city}")
         e.add("description", f"Ref: {m.ref_name}")
+        local_uid = f"{dtstamp}_{start_dt}_{m.league_name}_{m.home_team_name}_{m.away_team_name}".replace(
+            " ", ""
+        )
         e.add(
             "uid",
-            f"{dtstamp}-{start_dt}-{m.league_name}-{m.home_team_name}-{m.away_team_name}@footcal.cbdm.app",
+            f"{local_uid}@footcal.cbdm.app",
         )
         cal.add_component(e)
     return cal
