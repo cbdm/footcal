@@ -144,7 +144,7 @@ def next_match(type, id):
     min_diff = timedelta(days=365)
 
     for e in cal.events:
-        match_end = e._begin + e._duration
+        match_end = e.begin + e.duration
         time_diff = match_end - cur_time
         if time_diff < timedelta(seconds=0):
             continue
@@ -162,17 +162,18 @@ def next_match(type, id):
             "ref": "N/A",
         }
 
-    brace_index = next.name.index("]")
-    competition = next.name[1:brace_index]
-    teams = next.name[brace_index + 2 :]
-    venue, ref = next.description.split("\n")
+    brace_index = next.summary.index("]")
+    competition = next.summary[1:brace_index]
+    teams = next.summary[brace_index + 2 :]
+    venue = next.location.strip()
+    ref = next.description.strip()
     venue = venue[len("Venue: ") : -1]
     ref = ref[len("Ref: ") : -1]
 
     return {
         "teams": teams,
         "competition": competition,
-        "start_time": f"{next._begin.isoformat()}",
+        "start_time": f"{next.begin.isoformat()}",
         "venue": venue,
         "ref": ref,
         "extra_info": "N/A",
