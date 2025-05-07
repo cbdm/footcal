@@ -1,7 +1,8 @@
-import requests
 import json
-from os import getenv
 from datetime import datetime, timedelta
+from os import getenv
+
+import requests
 
 APIURL = "https://v3.football.api-sports.io/"
 APIKEY = getenv("APISPORTSKEY", "XxXxXxXxXxXxXxXxXxXxXxXx")

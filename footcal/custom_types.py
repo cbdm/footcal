@@ -46,4 +46,5 @@ class Competition:
 
 class SearchQuotaExceeded(Exception):
     "Raised when there is no more available quota for search requests."
+
     pass

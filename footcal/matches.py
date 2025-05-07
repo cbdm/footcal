@@ -1,10 +1,11 @@
-import requests
 import json
-import cache
-from auth import APIURL, HEADERS, get_remaining_quota
 from datetime import date, timedelta
 from typing import List
-from custom_types import Match, Team, Competition
+
+import cache
+import requests
+from auth import APIURL, HEADERS, get_remaining_quota
+from custom_types import Competition, Match, Team
 
 # Maps the api-football status to messages to be displayed.
 status_map = {
