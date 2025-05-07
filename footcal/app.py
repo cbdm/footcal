@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from os import getenv
 
 import arrow
@@ -88,11 +88,11 @@ def _create_calendar(team, id):
             sep = f"({m.home_score}) - ({m.away_score})"
         notes = matches.status_map.get(m.status, "")
         e.name = f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}"
-        e.begin = m.match_utc_ts
+        e.begin = datetime.fromtimestamp(m.match_utc_ts)
         e.duration = timedelta(hours=2)
         e.location = f"{m.venue_name}, {m.venue_city}"
         e.description = f"Ref: {m.ref_name}"
-        cal.events.add(e)
+        cal.events.append(e)
     return cal
 
 
