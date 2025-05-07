@@ -165,8 +165,9 @@ def next_match(type, id):
     brace_index = next.summary.index("]")
     competition = next.summary[1:brace_index]
     teams = next.summary[brace_index + 2 :]
-    venue = next.location.strip()
-    ref = next.description.strip()
+    venue = next.location
+    ref = next.description
+    ref = ref[len("Ref: ") :]
 
     return {
         "teams": teams,
