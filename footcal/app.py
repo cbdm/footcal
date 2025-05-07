@@ -13,7 +13,7 @@ from auth import get_quota_reset
 from cache import list_cached_calendars, setupDB
 from custom_types import SearchQuotaExceeded
 from flask import Flask, flash, make_response, render_template, request
-from ics import Calendar, Event
+from icalendar import Calendar, Event
 
 app = Flask(__name__)
 app.debug = True
@@ -81,28 +81,40 @@ def help_page():
 
 
 def _create_calendar(team, id):
+    # Create calendar with required properties.
     cal = Calendar()
+    cal.add("prodid", "-//Footcal//footcal.cbdm.app//EN")
+    cal.add("version", "2.0")
+    # Add one event for each match.
+    dtstamp = datetime.now(tz=ZoneInfo("UTC"))
     for m in matches.fetch(team=team, id=id)["matches"]:
         e = Event()
         sep = "-"
         if m.status in ("FT", "PEN"):
             sep = f"({m.home_score}) - ({m.away_score})"
         notes = matches.status_map.get(m.status, "")
-        e.summary = (
-            f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}"
+        e.add(
+            "summary",
+            f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}",
         )
-        e.begin = datetime.fromtimestamp(m.match_utc_ts, tz=ZoneInfo("UTC"))
-        e.end = e.begin + timedelta(hours=2)
-        e.location = f"{m.venue_name}, {m.venue_city}"
-        e.description = f"Ref: {m.ref_name}"
-        cal.events.append(e)
+        start_dt = datetime.fromtimestamp(m.match_utc_ts, tz=ZoneInfo("UTC"))
+        e.add("dtstamp", dtstamp)
+        e.add("dtstart", start_dt)
+        e.add("dtend", start_dt + timedelta(hours=2))
+        e.add("location", f"{m.venue_name}, {m.venue_city}")
+        e.add("description", f"Ref: {m.ref_name}")
+        e.add(
+            "uid",
+            f"{start_dt}-{m.league_name}-{m.home_team_name}-{m.away_team_name}@footcal.cbdm.app",
+        )
+        cal.add_component(e)
     return cal
 
 
 @app.route("/team/<team_id>/", methods=("GET",))
 def team_cal(team_id):
     cal = _create_calendar(team=True, id=team_id)
-    response = make_response(f"{cal.serialize()}")
+    response = make_response(f"{cal.to_ical().decode('utf-8')}")
     response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
     response.headers["Content-Type"] = "text/calendar; charset=utf-8"
     return response
@@ -116,7 +128,7 @@ def team_cal_ics(team_id):
 @app.route("/comp/<comp_id>/", methods=("GET",))
 def comp_cal(comp_id):
     cal = _create_calendar(team=False, id=comp_id)
-    response = make_response(f"{cal.serialize()}")
+    response = make_response(f"{cal.to_ical().decode('utf-8')}")
     response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
     response.headers["Content-Type"] = "text/calendar; charset=utf-8"
     return response
