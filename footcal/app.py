@@ -85,6 +85,9 @@ def _create_calendar(team, id):
     cal = Calendar()
     cal.add("prodid", "-//Footcal//footcal.cbdm.app//EN")
     cal.add("version", "2.0")
+    cal.add("METHOD", "PUBLISH")
+    cal.add("X-WR-CALNAME", f"footcal.cbdm.app/{'team' if team else 'comp'}/{id}")
+    cal.add("X-WR-TIMEZONE", "UTC")
     # Add one event for each match.
     dtstamp = datetime.now(tz=ZoneInfo("UTC"))
     for m in matches.fetch(team=team, id=id)["matches"]:
@@ -99,13 +102,14 @@ def _create_calendar(team, id):
         )
         start_dt = datetime.fromtimestamp(m.match_utc_ts, tz=ZoneInfo("UTC"))
         e.add("dtstamp", dtstamp)
+        e.add("last-modified", dtstamp)
         e.add("dtstart", start_dt)
         e.add("dtend", start_dt + timedelta(hours=2))
         e.add("location", f"{m.venue_name}, {m.venue_city}")
         e.add("description", f"Ref: {m.ref_name}")
         e.add(
             "uid",
-            f"{start_dt}-{m.league_name}-{m.home_team_name}-{m.away_team_name}@footcal.cbdm.app",
+            f"{dtstamp}-{start_dt}-{m.league_name}-{m.home_team_name}-{m.away_team_name}@footcal.cbdm.app",
         )
         cal.add_component(e)
     return cal
