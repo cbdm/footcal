@@ -4,6 +4,7 @@ load_dotenv()
 
 from datetime import datetime, timedelta
 from os import getenv
+from zoneinfo import ZoneInfo
 
 import arrow
 import matches
@@ -90,7 +91,7 @@ def _create_calendar(team, id):
         e.summary = (
             f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}"
         )
-        e.begin = datetime.fromtimestamp(m.match_utc_ts)
+        e.begin = datetime.fromtimestamp(m.match_utc_ts, tz=ZoneInfo("UTC"))
         e.duration = timedelta(hours=2)
         e.location = f"{m.venue_name}, {m.venue_city}"
         e.description = f"Ref: {m.ref_name}"
