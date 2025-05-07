@@ -2,22 +2,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from datetime import timedelta
+from os import getenv
+
+import arrow
 import matches
 import search
-import arrow
-from os import getenv
-from flask import (
-    Flask,
-    make_response,
-    request,
-    render_template,
-    flash,
-)
-from ics import Calendar, Event
-from datetime import timedelta
-from custom_types import SearchQuotaExceeded
 from auth import get_quota_reset
-from cache import setupDB, list_cached_calendars
+from cache import list_cached_calendars, setupDB
+from custom_types import SearchQuotaExceeded
+from flask import Flask, flash, make_response, render_template, request
+from ics import Calendar, Event
 
 app = Flask(__name__)
 app.debug = True

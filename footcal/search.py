@@ -1,10 +1,11 @@
+import json
+from datetime import timedelta
+from typing import List
+
+import cache
 import requests
 from auth import APIURL, HEADERS, MIN_LEFT_FOR_SEARCH, get_remaining_quota
-from typing import List
-from custom_types import Team, SearchQuotaExceeded, Competition
-import json
-import cache
-from datetime import timedelta
+from custom_types import Competition, SearchQuotaExceeded, Team
 
 
 def get_teams(user_query: str) -> str:
