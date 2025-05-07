@@ -167,8 +167,6 @@ def next_match(type, id):
     teams = next.summary[brace_index + 2 :]
     venue = next.location.strip()
     ref = next.description.strip()
-    venue = venue[len("Venue: ") : -1]
-    ref = ref[len("Ref: ") : -1]
 
     return {
         "teams": teams,
