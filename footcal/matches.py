@@ -130,8 +130,8 @@ def fetch(
         start_date = today - timedelta(weeks=1, days=1)
 
     if end_date is None:
-        # Future matches until end of next month.
-        end_date = today + timedelta(weeks=4)
+        # Future matches for the next three months.
+        end_date = today + timedelta(weeks=12)
 
     # Find the current season to query the matches.
     # TODO: Could add a timestamp of when the season was updated and only recheck after a week or so.
