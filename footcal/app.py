@@ -95,9 +95,8 @@ def _create_calendar(team, id):
         e.name = f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}"
         e.begin = m.match_utc_ts
         e.duration = timedelta(hours=2)
-        e.description = (
-            f"""Venue: {m.venue_name} in {m.venue_city}.\nRef: {m.ref_name}."""
-        )
+        e.location = f"{m.venue_name}, {m.venue_city}"
+        e.description = f"Ref: {m.ref_name}"
         cal.events.add(e)
     return cal
 
