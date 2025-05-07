@@ -87,7 +87,9 @@ def _create_calendar(team, id):
         if m.status in ("FT", "PEN"):
             sep = f"({m.home_score}) - ({m.away_score})"
         notes = matches.status_map.get(m.status, "")
-        e.name = f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}"
+        e.summary = (
+            f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}"
+        )
         e.begin = datetime.fromtimestamp(m.match_utc_ts)
         e.duration = timedelta(hours=2)
         e.location = f"{m.venue_name}, {m.venue_city}"
