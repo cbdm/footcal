@@ -104,6 +104,7 @@ def team_cal(team_id):
     cal = _create_calendar(team=True, id=team_id)
     response = make_response(f"{cal.serialize()}")
     response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
+    response.headers["Content-Type"] = "text/calendar; charset=utf-8"
     return response
 
 
@@ -117,6 +118,7 @@ def comp_cal(comp_id):
     cal = _create_calendar(team=False, id=comp_id)
     response = make_response(f"{cal.serialize()}")
     response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
+    response.headers["Content-Type"] = "text/calendar; charset=utf-8"
     return response
 
 
