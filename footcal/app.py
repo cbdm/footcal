@@ -86,7 +86,7 @@ def _create_calendar(team, id):
     cal.add("prodid", "-//Footcal//footcal.cbdm.app//EN")
     cal.add("version", "2.0")
     cal.add("METHOD", "PUBLISH")
-    cal.add("X-WR-CALNAME", f"footcal.cbdm.app/{'team' if team else 'comp'}/{id}")
+    cal.add("X-WR-CALNAME", f"Footcal - {'Team' if team else 'Comp.'} #{id}")
     cal.add("X-WR-TIMEZONE", "UTC")
     # Add one event for each match.
     dtstamp = datetime.now(tz=ZoneInfo("UTC"))
@@ -164,7 +164,7 @@ def next_match(type, id):
     min_diff = timedelta(days=365)
 
     for e in cal.events:
-        match_end = e.begin + e.duration
+        match_end = e.get("DTEND").dt
         time_diff = match_end - cur_time
         if time_diff < timedelta(seconds=0):
             continue
@@ -182,17 +182,17 @@ def next_match(type, id):
             "ref": "N/A",
         }
 
-    brace_index = next.summary.index("]")
-    competition = next.summary[1:brace_index]
-    teams = next.summary[brace_index + 2 :]
-    venue = next.location
-    ref = next.description
+    brace_index = next.get("summary").index("]")
+    competition = next.get("summary")[1:brace_index]
+    teams = next.get("summary")[brace_index + 2 :]
+    venue = next.get("location")
+    ref = next.get("description")
     ref = ref[len("Ref: ") :]
 
     return {
         "teams": teams,
         "competition": competition,
-        "start_time": f"{next.begin.isoformat()}",
+        "start_time": f"{next.get("dtstart").dt.isoformat()}",
         "venue": venue,
         "ref": ref,
         "extra_info": "N/A",
