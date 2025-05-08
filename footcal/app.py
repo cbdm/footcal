@@ -192,7 +192,7 @@ def next_match(type, id):
     return {
         "teams": teams,
         "competition": competition,
-        "start_time": f"{next.get("dtstart").dt.isoformat()}",
+        "start_time": f"{next.get('dtstart').dt.isoformat()}",
         "venue": venue,
         "ref": ref,
         "extra_info": "N/A",
