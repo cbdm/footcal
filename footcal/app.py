@@ -102,7 +102,7 @@ def _create_calendar(team, id):
         e.add("DTSTART", start_dt)
         e.add("DTEND", start_dt + timedelta(hours=2))
         e.add("DTSTAMP", dtstamp)
-        local_uid = f"{start_dt}-{m.league_name}-{m.home_team_name}-{m.away_team_name}"
+        local_uid = f"{start_dt.date()}_{m.league_id}_{m.home_team_id}_{m.away_team_id}"
         local_uid = local_uid.replace(" ", "_")
         e.add(
             "UID",
