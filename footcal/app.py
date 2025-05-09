@@ -83,9 +83,10 @@ def help_page():
 def _create_calendar(team, id):
     # Create calendar with required properties.
     cal = Calendar()
-    cal.add("prodid", "-//Footcal//footcal.cbdm.app//EN")
-    cal.add("version", "2.0")
+    cal.add("PRODID", "-//Footcal//footcal.cbdm.app//EN")
+    cal.add("VERSION", "2.0")
     cal.add("METHOD", "PUBLISH")
+    cal.add("CALSCALE", "GREGORIAN")
     cal.add("X-WR-CALNAME", f"Footcal - {'Team' if team else 'Comp.'} #{id}")
     cal.add("X-WR-TIMEZONE", "UTC")
     # Add one event for each match.
@@ -96,23 +97,27 @@ def _create_calendar(team, id):
         if m.status in ("FT", "PEN"):
             sep = f"({m.home_score}) - ({m.away_score})"
         notes = matches.status_map.get(m.status, "")
-        e.add(
-            "summary",
-            f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}",
-        )
+
         start_dt = datetime.fromtimestamp(m.match_utc_ts, tz=ZoneInfo("UTC"))
-        e.add("dtstamp", dtstamp)
-        e.add("dtstart", start_dt)
-        e.add("dtend", start_dt + timedelta(hours=2))
-        e.add("location", f"{m.venue_name}, {m.venue_city}")
-        e.add("description", f"Ref: {m.ref_name}")
-        local_uid = f"{dtstamp}_{start_dt}_{m.league_name}_{m.home_team_name}_{m.away_team_name}".replace(
-            " ", ""
-        )
+        e.add("DTSTART", start_dt)
+        e.add("DTEND", start_dt + timedelta(hours=2))
+        e.add("DTSTAMP", dtstamp)
+        local_uid = f"{start_dt}-{m.league_name}-{m.home_team_name}-{m.away_team_name}"
         e.add(
-            "uid",
+            "UID",
             f"{local_uid}@footcal.cbdm.app",
         )
+        e.add("CREATED", dtstamp)
+        e.add("DESCRIPTION", f"Ref: {m.ref_name}")
+        e.add("LAST-MODIFIED", dtstamp)
+        e.add("LOCATION", f"{m.venue_name}, {m.venue_city}")
+        e.add("SEQUENCE", 0)
+        e.add("STATUS", "CONFIRMED")
+        e.add(
+            "SUMMARY",
+            f"[{m.league_name}] {notes}{m.home_team_name} {sep} {m.away_team_name}",
+        )
+        e.add("TRANSP", "OPAQUE")
         cal.add_component(e)
     return cal
 
