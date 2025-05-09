@@ -85,8 +85,8 @@ def _create_calendar(team, id):
     cal = Calendar()
     cal.add("PRODID", "-//Footcal//footcal.cbdm.app//EN")
     cal.add("VERSION", "2.0")
-    cal.add("METHOD", "PUBLISH")
     cal.add("CALSCALE", "GREGORIAN")
+    cal.add("METHOD", "PUBLISH")
     cal.add("X-WR-CALNAME", f"Footcal - {'Team' if team else 'Comp.'} #{id}")
     cal.add("X-WR-TIMEZONE", "UTC")
     # Add one event for each match.
@@ -125,7 +125,7 @@ def _create_calendar(team, id):
 @app.route("/team/<team_id>/", methods=("GET",))
 def team_cal(team_id):
     cal = _create_calendar(team=True, id=team_id)
-    response = make_response(f"{cal.to_ical().decode('utf-8')}")
+    response = make_response(f"{cal.to_ical(sorted=False).decode('utf-8')}")
     response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
     response.headers["Content-Type"] = "text/calendar; charset=utf-8"
     return response
@@ -139,7 +139,7 @@ def team_cal_ics(team_id):
 @app.route("/comp/<comp_id>/", methods=("GET",))
 def comp_cal(comp_id):
     cal = _create_calendar(team=False, id=comp_id)
-    response = make_response(f"{cal.to_ical().decode('utf-8')}")
+    response = make_response(f"{cal.to_ical(sorted=False).decode('utf-8')}")
     response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
     response.headers["Content-Type"] = "text/calendar; charset=utf-8"
     return response
