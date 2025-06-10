@@ -1,31 +1,9 @@
-import json
-from datetime import datetime, timedelta
 from os import getenv
 
-import requests
-
-APIURL = "https://v3.football.api-sports.io/"
-APIKEY = getenv("APISPORTSKEY", "XxXxXxXxXxXxXxXxXxXxXxXx")
-HEADERS = {"x-apisports-key": APIKEY}
-MIN_LEFT_FOR_SEARCH = 20
-
-
-def get_remaining_quota() -> int:
-    """Returns how many requests the app can still make with the daily quota."""
-    resp = requests.get(f"{APIURL}/status", headers=HEADERS)
-    data = json.loads(resp.text)
-    reqs = data.get("response", {}).get("requests", {})
-    return reqs.get("limit_day", 0) - reqs.get("current", 0)
-
-
-def get_quota_reset() -> timedelta:
-    """Returns how much time until the API quota resets, assuming it resets on 00:00 UTC."""
-    midnight = datetime.combine(
-        datetime.utcnow().today(), datetime.min.time()
-    ) + timedelta(days=1)
-    return midnight - datetime.utcnow()
-
-
-if __name__ == "__main__":
-    print(get_remaining_quota())
-    print(get_quota_reset())
+APIURL = "https://api-football-v1.p.rapidapi.com/v3"
+APIKEY = getenv("RAPIDAPIKEY", "XxXxXxXxXxXxXxXxXxXxXxXx")
+HEADERS = {
+    "x-rapidapi-host": "api-football-v1.p.rapidapi.com",
+    "x-rapidapi-key": APIKEY,
+}
+REQUEST_TIMEOUT_S = 45

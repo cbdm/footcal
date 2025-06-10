@@ -9,7 +9,6 @@ from zoneinfo import ZoneInfo
 import arrow
 import matches
 import search
-from auth import get_quota_reset
 from cache import list_cached_calendars, setupDB
 from custom_types import SearchQuotaExceeded
 from flask import Flask, flash, make_response, render_template, request
@@ -47,7 +46,7 @@ def search_ID():
                 )
             except SearchQuotaExceeded:
                 flash(
-                    f"The search couldn't be performed because we have exceeded our daily quota for performing searches. Sorry about that!\nYou can try again when it resets in {get_quota_reset()}s."
+                    "The search couldn't be performed because we have exceeded our daily quota for performing searches. Sorry about that!\nYou can try again later."
                 )
 
     return render_template("search.html", team=True)
@@ -69,7 +68,7 @@ def search_comp_ID():
                 )
             except SearchQuotaExceeded:
                 flash(
-                    f"The search couldn't be performed because we have exceeded our daily quota for performing searches. Sorry about that!\nYou can try again when it resets in {get_quota_reset()}s."
+                    "The search couldn't be performed because we have exceeded our daily quota for performing searches. Sorry about that!\nYou can try again later."
                 )
 
     return render_template("search.html", team=False)
@@ -94,7 +93,7 @@ def _create_calendar(team, id):
     for m in matches.fetch(team=team, id=id)["matches"]:
         e = Event()
         sep = "-"
-        if m.status in ("FT", "PEN"):
+        if m.status in {"FT", "AET", "PEN"}:
             sep = f"({m.home_score}) - ({m.away_score})"
         notes = matches.status_map.get(m.status, "")
 

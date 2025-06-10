@@ -4,16 +4,16 @@ from typing import List
 
 import cache
 import requests
-from auth import APIURL, HEADERS, MIN_LEFT_FOR_SEARCH, get_remaining_quota
-from custom_types import Competition, SearchQuotaExceeded, Team
+from auth import APIURL, HEADERS, REQUEST_TIMEOUT_S
+from custom_types import Competition, Team
 
 
 def get_teams(user_query: str) -> str:
-    if get_remaining_quota() < MIN_LEFT_FOR_SEARCH:
-        raise SearchQuotaExceeded()
-
     resp = requests.get(
-        f"{APIURL}/teams", params={"search": user_query}, headers=HEADERS
+        f"{APIURL}/teams",
+        params={"search": user_query},
+        headers=HEADERS,
+        timeout=REQUEST_TIMEOUT_S,
     )
     return resp.text
 
@@ -51,11 +51,11 @@ def search_teams(user_query: str) -> List[Team]:
 
 
 def get_comps(user_query: str) -> str:
-    if get_remaining_quota() < MIN_LEFT_FOR_SEARCH:
-        raise SearchQuotaExceeded()
-
     resp = requests.get(
-        f"{APIURL}/leagues", params={"search": user_query}, headers=HEADERS
+        f"{APIURL}/leagues",
+        params={"search": user_query},
+        headers=HEADERS,
+        timeout=REQUEST_TIMEOUT_S,
     )
     return resp.text
 

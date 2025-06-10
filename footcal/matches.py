@@ -4,7 +4,7 @@ from typing import List
 
 import cache
 import requests
-from auth import APIURL, HEADERS, get_remaining_quota
+from auth import APIURL, HEADERS, REQUEST_TIMEOUT_S
 from custom_types import Competition, Match, Team
 
 # Maps the api-football status to messages to be displayed.
@@ -14,10 +14,11 @@ status_map = {
     "ABD": "(Abandoned) ",
     "AWD": "(Not Played) ",
     "WO": "(Not Played) ",
+    "TBD": "(TBD) ",
 }
 
 
-def get_matches(
+def get_matches_in_window(
     team: bool, id: str, start_date: date, end_date: date, season: str
 ) -> str:
     """Requests the relevant matches for the given team/competition."""
@@ -30,8 +31,37 @@ def get_matches(
             "season": season,
         },
         headers=HEADERS,
+        timeout=REQUEST_TIMEOUT_S,
     )
 
+    return mresp.text
+
+
+def get_next_n_matches(team_id: str, n: int) -> str:
+    """Requests the next n matches for the given **team**."""
+    mresp = requests.get(
+        f"{APIURL}/fixtures",
+        params={
+            "team": team_id,
+            "next": n,
+        },
+        headers=HEADERS,
+        timeout=REQUEST_TIMEOUT_S,
+    )
+    return mresp.text
+
+
+def get_last_n_matches(team_id: str, n: int) -> str:
+    """Requests the last n matches for the given **team**."""
+    mresp = requests.get(
+        f"{APIURL}/fixtures",
+        params={
+            "team": team_id,
+            "last": n,
+        },
+        headers=HEADERS,
+        timeout=REQUEST_TIMEOUT_S,
+    )
     return mresp.text
 
 
@@ -60,23 +90,78 @@ def parse_matches(mresp: str) -> List[Match]:
     ]
 
 
-def fetch(
-    team: bool,
-    id: str,
-    start_date: date = None,
-    end_date: date = None,
-    season: str = None,
+def fetch_team(
+    team_id: str,
+    num_next_games: int = 15,
+    num_last_games: int = 5,
 ) -> List[Match]:
     # Check if we have this calendar cached.
-    lookup_key = f"{'team' if team else 'comp'}-cal/{id}"
+    lookup_key = f"team-cal/{team_id}"
     cached, fresh = cache.query(lookup_key, max_age=timedelta(days=1))
 
     # Return cached data if it's still fresh.
     if fresh:
         return cached
 
-    # Return cached data even if it's old if we're over the daily quota.
-    if cached and (get_remaining_quota() <= 0):
+    # Replace None with an empty dict so it's easier to work with.
+    if cached is None:
+        cached = {}
+
+    # Search information for the team or competition if it hasn't been cached or the season for competition is over.
+    obj = cached.get("info")
+    if obj is None:
+        tresp = requests.get(
+            f"{APIURL}/teams",
+            params={"id": f"{team_id}"},
+            headers=HEADERS,
+            timeout=REQUEST_TIMEOUT_S,
+        )
+        data = json.loads(tresp.text)["response"][0]
+        obj = Team(
+            id=data["team"]["id"],
+            name=data["team"]["name"],
+            short_name=data["team"]["code"],
+            country=data["team"]["country"],
+            founded=data["team"]["founded"],
+            club=not data["team"]["national"],
+            logo=data["team"]["logo"],
+        )
+
+    # Check if could not find any information for the given ID.
+    if obj is None:
+        return None
+
+    # Request and parse matches.
+    # For teams, use the next and last parameters so we don't have to figure out the season.
+    next_matches = get_next_n_matches(team_id, num_next_games)
+    last_matches = get_last_n_matches(team_id, num_last_games)
+    matches = parse_matches(next_matches) + parse_matches(last_matches)
+
+    # Create cache entry.
+    new_data = {
+        "info": obj,
+        "season": "N/A",
+        "matches": matches,
+    }
+
+    # Add the newly created calendar.
+    cache.update(lookup_key, new_data)
+
+    return new_data
+
+
+def fetch_comp(
+    comp_id: str,
+    start_date: date = None,
+    end_date: date = None,
+    season: str = None,
+) -> List[Match]:
+    # Check if we have this calendar cached.
+    lookup_key = f"comp-cal/{comp_id}"
+    cached, fresh = cache.query(lookup_key, max_age=timedelta(days=1))
+
+    # Return cached data if it's still fresh.
+    if fresh:
         return cached
 
     # Replace None with an empty dict so it's easier to work with.
@@ -88,38 +173,25 @@ def fetch(
 
     # Search information for the team or competition if it hasn't been cached or the season for competition is over.
     obj = cached.get("info")
-    if obj is None or ((not team) and (obj.season_end < today.isoformat())):
-        if team:
-            tresp = requests.get(
-                f"{APIURL}/teams", params={"id": f"{id}"}, headers=HEADERS
-            )
-            data = json.loads(tresp.text)["response"][0]
-            obj = Team(
-                id=data["team"]["id"],
-                name=data["team"]["name"],
-                short_name=data["team"]["code"],
-                country=data["team"]["country"],
-                founded=data["team"]["founded"],
-                club=not data["team"]["national"],
-                logo=data["team"]["logo"],
-            )
-
-        else:
-            cresp = requests.get(
-                f"{APIURL}/leagues", params={"id": f"{id}"}, headers=HEADERS
-            )
-            data = json.loads(cresp.text)["response"][0]
-            obj = Competition(
-                id=data["league"]["id"],
-                name=data["league"]["name"],
-                type=data["league"]["type"],
-                logo=data["league"]["logo"],
-                country_name=data["country"]["name"],
-                country_code=data["country"]["code"],
-                season=data["seasons"][-1]["year"],
-                season_start=data["seasons"][-1]["start"],
-                season_end=data["seasons"][-1]["end"],
-            )
+    if (obj is None) or (obj.season_end < today.isoformat()):
+        cresp = requests.get(
+            f"{APIURL}/leagues",
+            params={"id": f"{comp_id}"},
+            headers=HEADERS,
+            timeout=REQUEST_TIMEOUT_S,
+        )
+        data = json.loads(cresp.text)["response"][0]
+        obj = Competition(
+            id=data["league"]["id"],
+            name=data["league"]["name"],
+            type=data["league"]["type"],
+            logo=data["league"]["logo"],
+            country_name=data["country"]["name"],
+            country_code=data["country"]["code"],
+            season=data["seasons"][-1]["year"],
+            season_start=data["seasons"][-1]["start"],
+            season_end=data["seasons"][-1]["end"],
+        )
 
     # Check if could not find any information for the given ID.
     if obj is None:
@@ -134,31 +206,16 @@ def fetch(
         # Future matches for the next three months.
         end_date = today + timedelta(weeks=12)
 
+    # Request and parse matches.
+    # For competitions, find matches using the original method.
+    # For a given season, find all matches that happen between last week and 3 months from now.
     # Find the current season to query the matches.
     # TODO: Could add a timestamp of when the season was updated and only recheck after a week or so.
     season = season if season else cached.get("season")
     if season is None or (cached and (not cached.get("matches"))):
-        if team:
-            # Get the latest season for the team.
-            sresp = requests.get(
-                f"{APIURL}/teams/seasons", params={"team": f"{id}"}, headers=HEADERS
-            )
-            sresults = json.loads(sresp.text)
-
-            # Filter current/past years only.
-            seasons = [
-                s for s in sresults.get("response", [today.year]) if s <= today.year
-            ]
-
-            # Get most recent one.
-            season = seasons[-1]
-
-        else:
-            # Get the latest season for the competition.
-            season = obj.season
-
-    # Request and parse matches.
-    mresp = get_matches(team, id, start_date, end_date, season)
+        # Get the latest season for the competition.
+        season = obj.season
+    mresp = get_matches_in_window(False, comp_id, start_date, end_date, season)
     matches = parse_matches(mresp)
 
     # Create cache entry.
@@ -172,6 +229,13 @@ def fetch(
     cache.update(lookup_key, new_data)
 
     return new_data
+
+
+def fetch(team: bool, id: str) -> List[Match]:
+    if team:
+        return fetch_team(id)
+    else:
+        return fetch_comp(id)
 
 
 if __name__ == "__main__":
