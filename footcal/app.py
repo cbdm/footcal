@@ -80,17 +80,19 @@ def help_page():
 
 
 def _create_calendar(team, id):
+    # Get the API data from cache.
+    cache_data = matches.fetch(team=team, id=id)
     # Create calendar with required properties.
     cal = Calendar()
     cal.add("PRODID", "-//Footcal//footcal.cbdm.app//EN")
     cal.add("VERSION", "2.0")
     cal.add("CALSCALE", "GREGORIAN")
     cal.add("METHOD", "PUBLISH")
-    cal.add("X-WR-CALNAME", f"Footcal - {'Team' if team else 'Comp.'} #{id}")
+    cal.add("X-WR-CALNAME", cache_data["info"].name)
     cal.add("X-WR-TIMEZONE", "UTC")
     # Add one event for each match.
     dtstamp = datetime.now(tz=ZoneInfo("UTC"))
-    for m in matches.fetch(team=team, id=id)["matches"]:
+    for m in cache_data["matches"]:
         e = Event()
         sep = "-"
         if m.status in {"FT", "AET", "PEN"}:
