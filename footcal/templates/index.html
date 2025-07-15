@@ -18,7 +18,7 @@
                 {% for (ID, name, country) in team_list %}
                 <tr>
                     <td>
-                        <img src="https://media.api-sports.io/football/teams/{{ ID }}.png" alt="{{ name }}'s logo" width="50" style="vertical-align:middle">
+                        <img src="{{ url_for('get_logo', type='team', id=ID) }}" alt="{{ name }}'s logo" width="50" style="vertical-align:middle">
                         &nbsp;
                         {{ name }}
                     </td>
@@ -48,7 +48,7 @@
                 {% for (ID, name, country) in comp_list %}
                 <tr>
                     <td>
-                        <img src="https://media.api-sports.io/football/leagues/{{ ID }}.png" alt="{{ name }}'s logo" width="50" style="vertical-align:middle">
+                        <img src="{{ url_for('get_logo', type='comp', id=ID) }}" alt="{{ name }}'s logo" width="50" style="vertical-align:middle">
                         &nbsp;
                         {{ name }}
                     </td>

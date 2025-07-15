@@ -7,9 +7,10 @@ from os import getenv
 from zoneinfo import ZoneInfo
 
 import arrow
+import cache
 import matches
+import requests
 import search
-from cache import list_cached_calendars, setupDB
 from custom_types import SearchQuotaExceeded
 from flask import Flask, flash, make_response, render_template, request
 from icalendar import Calendar, Event
@@ -18,15 +19,15 @@ app = Flask(__name__)
 app.debug = True
 app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", "abc")
 
-setupDB(app)
+cache.setupDB(app)
 
 
 @app.route("/", methods=("GET",))
 def index():
     return render_template(
         "index.html",
-        team_list=sorted(list_cached_calendars(team=True), key=lambda x: x[1]),
-        comp_list=sorted(list_cached_calendars(team=False), key=lambda x: x[1]),
+        team_list=sorted(cache.list_cached_calendars(team=True), key=lambda x: x[1]),
+        comp_list=sorted(cache.list_cached_calendars(team=False), key=lambda x: x[1]),
     )
 
 
@@ -204,6 +205,31 @@ def next_match(type, id):
         "ref": ref,
         "extra_info": "N/A",
     }
+
+
+@app.route("/logo/<type>/<id>/", methods=("GET",))
+def get_logo(type, id):
+    # Check if the logo is cached.
+    cache_key = f"logo/{type}/{id}"
+    logo, unused_is_fresh = cache.query(cache_key, max_age=timedelta(weeks=104))
+    if not logo:
+        # If it is not cached yet, request the logo from the API.
+        logo_base_url = "https://media.api-sports.io/football/{type}/{id}.png"
+        new_logo_url = logo_base_url.format(
+            id=id, type="teams" if type == "team" else "leagues"
+        )
+        resp = requests.get(new_logo_url, timeout=10)
+
+        # If the request wasn't successful, return the same response.
+        if resp.status_code != 200:
+            return resp.content, resp.status_code, resp.headers.items()
+
+        # If the request was succesful, cache the logo received.
+        logo = resp.content
+        cache.update(cache_key, logo)
+
+    # Respond with the logo.
+    return logo, 200, {"Content-Type": "image/png", "Content-Length": len(logo)}
 
 
 if __name__ == "__main__":
