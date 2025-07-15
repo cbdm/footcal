@@ -10,13 +10,17 @@
             You can find the team calendars already created in the table below:
             <table>
                 <tr>
-                    <th>Team Name</th>
-                    <th>Team ID</th>
+                    <th>Team</th>
+                    <th>ID</th>
                     <th>Calendar URL</th>
                 </tr>
                 {% for (ID, name) in team_list %}
                 <tr>
-                    <td> {{name}} </td>
+                    <td>
+                        <img src="https://media.api-sports.io/football/teams/{{ ID }}.png" alt="{{ name }}'s logo" width="50" style="vertical-align:middle">
+                        &nbsp;
+                        {{name}}
+                    </td>
                     <td> {{ID}} </td>
                     <td>
                         <a href="{{ request.host_url }}team/{{ ID }}">{{ request.host_url }}team/{{ ID }}</a>
@@ -33,13 +37,17 @@
             You can find the competition calendars already created in the table below:
             <table>
                 <tr>
-                    <th>Competition Name</th>
-                    <th>Competition ID</th>
+                    <th>Competition</th>
+                    <th>ID</th>
                     <th>Calendar URL</th>
                 </tr>
                 {% for (ID, name) in comp_list %}
                 <tr>
-                    <td> {{ name }} </td>
+                    <td>
+                        <img src="https://media.api-sports.io/football/leagues/{{ ID }}.png" alt="{{ name }}'s logo" width="50" style="vertical-align:middle">
+                        &nbsp;
+                        {{ name }}
+                    </td>
                     <td> {{ ID}} </td>
                     <td>
                         <a href="{{ request.host_url }}comp/{{ ID }}">{{ request.host_url }}comp/{{ ID }}</a> 
