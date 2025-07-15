@@ -91,7 +91,8 @@ def list_cached_calendars(team: bool) -> List[str]:
         cal_id = entry.objkey[len(f"{'team' if team else 'comp'}-cal/") :]
         calendar = loads(entry.data)["value"]
         name = calendar["info"].name
-        cached_cals.append((cal_id, name))
+        country = calendar["info"].country if team else calendar["info"].country_name
+        cached_cals.append((cal_id, name, country))
 
     return cached_cals
 
