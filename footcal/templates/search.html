@@ -1,15 +1,45 @@
 {% extends 'base.html' %}
 
+{% block title %} - Search{% endblock %}
+{% block tag %}<span class="display-6">&nbsp;Search Page</span>{% endblock %}
+
 {% block content %}
-    <h1>{% block title %} ({{ "team" if team else "competition" }} search){% endblock %}</h1>
+<div class="container p-3 bg-body-tertiary rounded-3">
+    <h4 class="display-4 text-center">Search for Teams and Competitions</h4>
+    <p class="fs-5 text-center">
+        You can use this page to find the IDs for teams and competitions that are not listed in the active calendars in
+        our homepage.
+    </p>
 
-    <form method="post">
-        <label for="query">Search query: </label>
-        <input type="text" name="query"
-               placeholder="{{ "atletico" if team else "libertadores"}}"
-               value="{{ request.form['query'] }}"></input>
-        <br/>
-        <input type ="submit" name="action" value="Search">
-    </form>
-
+    <div class="container p-1 fs-5">
+        <form method="post">
+            <div class="row mb-3">
+                <label for="query" class="col-sm-2 col-form-label">Search Query</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="query" id="query"
+                        placeholder='"atletico" or "libertadores"'>
+                </div>
+            </div>
+            <fieldset class="row mb-3">
+                <legend class="col-form-label col-sm-2 pt-0">Search Type</legend>
+                <div class="col-sm-10">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="searchTeam" value="teams"
+                            checked>
+                        <label class="form-check-label" for="searchTeam">
+                            Teams
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gridRadios" id="searchComp" value="comps">
+                        <label class="form-check-label" for="searchComp">
+                            Competitions
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from os import getenv
 from typing import Any, List
-
+from custom_types import ActiveCalendar
 from flask_sqlalchemy import SQLAlchemy
 from jsonpickle import dumps, loads
 from pymysql import install_as_MySQLdb
@@ -75,14 +75,20 @@ def update(key: str, new_val: Any) -> None:
     db.session.commit()
 
 
-def list_cached_calendars(team: bool) -> List[str]:
+def list_cached_calendars(team: bool = None) -> List[ActiveCalendar]:
     cached_cals = []
     for result in db.session.execute(select(table)):
         entry = result[0]
 
-        # Ignore entries for other types.
+        # Ignore entries that are not calendars (e.g., searches).
         # TODO: could add a new column and filter these with the select query above.
         if not (
+            entry.objkey.startswith("team-cal") or entry.objkey.startswith("comp-cal")
+        ):
+            continue
+
+        # Filter the calendar list, if wanted.
+        if team is not None and not (
             (team and entry.objkey.startswith("team-cal"))
             or (not team and entry.objkey.startswith("comp-cal"))
         ):
@@ -91,8 +97,11 @@ def list_cached_calendars(team: bool) -> List[str]:
         cal_id = entry.objkey[len(f"{'team' if team else 'comp'}-cal/") :]
         calendar = loads(entry.data)["value"]
         name = calendar["info"].name
-        country = calendar["info"].country if team else calendar["info"].country_name
-        cached_cals.append((cal_id, name, country))
+        is_team = entry.objkey.startswith("team-cal")
+        country = calendar["info"].country if is_team else calendar["info"].country_name
+        cached_cals.append(
+            ActiveCalendar(id=cal_id, is_team=is_team, name=name, country=country)
+        )
 
     return cached_cals
 
@@ -100,3 +109,4 @@ def list_cached_calendars(team: bool) -> List[str]:
 if __name__ == "__main__":
     print(list_cached_calendars(True))
     print(list_cached_calendars(False))
+    print(list_cached_calendars())

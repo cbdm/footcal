@@ -1,57 +1,89 @@
 {% extends 'base.html' %}
 
-{% block content %}
-    <h1>{% block title %} (help){% endblock %}</h1>
+{% block title %} - Help{% endblock %}
+{% block tag %}<span class="display-6">&nbsp;Help Page</span>{% endblock %}
 
-    The goal of this website is to provide a calendar with football matches from your favorite teams.
-    Each calendar would have a different URL, and then you can import these URLs into whatever app you use (e.g., Google Calendar).
-    So you'd be able to see when that next important match is happening and be aware of conflicts when scheduling other things.<br/>
-    <br/>
-    So how do you get a calendar for, e.g., Atletico Mineiro (<a href="https://en.wikipedia.org/wiki/Clube_Atl%C3%A9tico_Mineiro">wiki</a>)?<br/>
+{% block content %}
+<div class="container p-3 bg-body-tertiary rounded-3">
+    <h4 class="display-4 text-center">Overview</h4>
+
+    The goal of this website is to provide a calendar with football matches from your favorite teams and competitions.
+    Each calendar would have a different URL, and then you can import these URLs into whatever app you use (e.g., Google
+    Calendar).
+    So you'd be able to see when that next important match is happening and be aware of conflicts when scheduling other
+    things.<br />
+    <br />
+    So how do you get a calendar for, e.g., Atletico Mineiro (<a
+        href="https://en.wikipedia.org/wiki/Clube_Atl%C3%A9tico_Mineiro">wiki</a>)?<br />
     <ol>
         <li>
-            The first thing you need to do is find out the ID for the club. If you don't know that yet, you can go to <a href="{{ request.host_url }}search">{{ request.host_url }}search</a> to look for it.
-            You can type "atletico" in the search box and hit the button, then you should see a long list with a bunch of Atleticos there.
+            The first thing you need to do is find out the ID for the club. If you don't know that yet, you can go to <a
+                href="{{ url_for('search_ID') }}">{{ url_for('search_ID', _external=True) }}</a> to look for it.
+            You can type <code>atletico</code> in the search box and hit the button, then you should see a long list
+            with a bunch of Atleticos there.
             For each team you should see their logo (if available), name, country, year it was founded, and ID.
             You can use these pieces of information together to find the correct row you need.
-            For example, if you search for atletico, the first row seems to have the correct name we want "Aletico Mineiro".
+            For example, if you do search for <code>atletico</code>, the first row seems to have the correct name we
+            want <code>Aletico Mineiro</code>.
             But all the other fields are missing: no logo, no year, no country.
-            If we scroll down, you will find "Atletico-MG", which has the correct logo, year, and country.
+            If we scroll down, you will find <code>Atletico-MG</code>, which has the correct logo, year, and country.
             So this is the correct entry!
-            From this row, we know that the ID for Atletico Mineiro is 1062.
+            From this row, we know that the ID for <code>Atletico Mineiro</code> is <code>1062</code>.
         </li>
         <li>
             Next, once you know the ID for the team you want, you can create a URL that will have that team's game.
-            Using the example above, we know the team ID is 1062.
-            Then, we can get the base url for this website (<a href="{{ request.host_url }}">{{ request.host_url }}</a>) and add /team/1062 at the end.
-            This would create a final url with <a href="{{ request.host_url }}team/1062">{{ request.host_url }}team/1062</a>, which is the calendar URL we need for the next step.
-            If you want the calendar of a different team, you would just use the different ID in this part, replacing the information after the /team/.
-            You can also get the URL with the "copy calendar URL" button from the results page or from the homepage where we have the currently active calendars.
+            Using the example above, we know the team ID is <code>1062</code>.
+            Then, we can get the base url for this website (<a href="{{ request.host_url }}">{{ request.host_url }}</a>)
+            and add <code>/team/1062</code> at the end.
+            This would create a final url with <a href="{{ url_for('team_cal', team_id=1062) }}">{{ url_for('team_cal',
+                team_id=1062, _external=True) }}</a>, which is the calendar URL we need for the next step.
+            If you want the calendar of a different team, you would just use the different ID in this part, replacing
+            the information after the <code>/team/</code>.
+            You can also get the URL with the <code>copy calendar URL</code> button from the results page or from the
+            homepage where we have the currently active calendars.
         </li>
         <li>
             Finally, you can enter this URL into your calendar service.
-            Keep in mind that by default (and with no current plans of changing), we only serve results from at most a week ago, and future matches that happen up to 12 weeks into the future.
-            So, for example, if you're getting a calendar on 2023-07-20, it should have results from 2023-07-13 to 2023-07-19, and future matches from 2023-07-20 to 2023-10-12.<br/>
+            Keep in mind that by default (and with no current plans of changing), we only serve results from at most a
+            week ago, and future matches that happen up to 12 weeks into the future for competitions.
+            So, for example, if you're getting a calendar on 2023-07-20, it should have results from 2023-07-13 to
+            2023-07-19, and future matches from 2023-07-20 to 2023-10-12.<br />
+            For teams, we serve the results of their last 5 matches and calendar events for their next 10 matches.
             But you don't need to worry!
-            Since your calendar should request updates occasionally, you only need to add it once, and everything else should be self-updating.
-            Whenever your calendar service asks for an update, it will be at a later day, and thus this window-ed calendar will move forward.
-            The only downside is that we don't give you past results, but that's not the goal of this app :)
+            Since your calendar should request updates occasionally, you only need to add it once, and everything else
+            should be self-updating.
+            Whenever your calendar service asks for an update, it will be at a later day, and thus this window-ed
+            calendar will move forward.
+            The only downside is that we don't give you all past results, but that's not the goal of this app :)
         </li>
         <li>
-            If you want to add a calendar for a competition instead of a single team, you can follow these same instructions, but use <a href="{{ request.host_url }}search-comp">{{ request.host_url }}search-comp</a> 
+            If you want to add a calendar for a competition instead of a single team, you can follow these same
+            instructions, but use <code>/comp/</code> instead of <code>/team/</code> when creating the URL.
         </li>
     </ol>
 
-    <h3>Google Calendar</h3>
+    <h6 class="display-6">Google Calendar</h6>
 
-    If you're using Google calendar, by default, custom calendars you subscribe with URLs are only visible in the web version.
-    You'll need to go to syncselect (<a href="https://calendar.google.com/calendar/u/0/syncselect">https://calendar.google.com/calendar/u/0/syncselect</a>) to be able to access this calendar on your other devices.<br/>
+    If you're using Google calendar, by default, custom calendars you subscribe with URLs are only visible in the web
+    version.
+    You'll need to go to syncselect (<a
+        href="https://calendar.google.com/calendar/u/0/syncselect">https://calendar.google.com/calendar/u/0/syncselect</a>)
+    to be able to access this calendar on your other devices.
     Other services might have something similar to this, but I'm not familiar with those, sorry.
+    We might add new information here as folks reach out with questions or calendar-specific settings.
 
-    <h3>Outlook Calendar</h3>
+    <h6 class="display-6">Outlook Calendar</h6>
 
-    If you're using Oulook.com as your calendar, it will not accept the default URL generated (e.g., <a href="{{ request.host_url }}team/1062">{{ request.host_url }}team/1062</a>) as a valid calendar. Instead, as far as I could debug, the URL needs to end in ".ics".<br/>
-    To solve that, you can add "/calendar.ics" to the end of it, so instead of <a href="{{ request.host_url }}team/1062">{{ request.host_url }}team/1062</a>, you should use <a href="{{ request.host_url }}team/1062/calendar.ics">{{ request.host_url }}team/1062/calendar.ics</a><br/>
+    If you're using Oulook.com as your calendar, it will not accept the default URL generated (e.g., <a
+        href="{{ url_for('team_cal', team_id=1062) }}">{{ url_for('team_cal', team_id=1062, _external=True) }}</a>) as a
+    valid calendar. Instead, as far could debug, the URL needs to end in ".ics".
+    To solve that, you can add "/calendar.ics" to the end of it, so you should use <a
+        href="{{ url_for('team_cal_ics', team_id=1062) }}">{{ url_for('team_cal_ics', team_id=1062, _external=True)
+        }}</a> instead.
     Both links should generate calendars with the same events.
 
+    <h6 class="display-6">Other Questions?</h6>
+    Please feel free to reach out over <a href="mailto:footcal@cbdm.app">email</a> and/or open issues in our <a
+        href="https://github.com/cbdm/footcal/">repo</a>.
+</div>
 {% endblock %}

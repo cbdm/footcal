@@ -1,69 +1,80 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h3>Welcome to FootCal!</h3>
-    This app lets you add the games of your favorite team (or competition) to your personal calendar.
+<div class="container p-3 text-center bg-body-tertiary rounded-3">
+    <h4 class="display-4">Welcome to FootCal!</h4>
+    <p class="col-lg-8 mx-auto fs-5">
+        This app lets you add the games of your favorite teams and competitions to your calendar.
+        You can find calendars already created below, and can create new ones with our <a href="/search">search
+            page</a>.
+    </p>
 
-    <div class="row">
-        <div class="two_columns_no_borders">
-            <h2>Team Calendars</h2>
-            You can find the team calendars already created in the table below:
-            <table>
-                <tr>
-                    <th>Team</th>
-                    <th>Country</th>
-                    <th>ID</th>
-                    <th>Calendar URL</th>
-                </tr>
-                {% for (ID, name, country) in team_list %}
-                <tr>
-                    <td>
-                        <img src="{{ url_for('get_logo', type='team', id=ID) }}" alt="{{ name }}'s logo" width="50" style="vertical-align:middle">
-                        &nbsp;
-                        {{ name }}
-                    </td>
-                    <td> {{ country }} </td>
-                    <td> {{ ID }} </td>
-                    <td>
-                        <a href="{{ request.host_url }}team/{{ ID }}">{{ request.host_url }}team/{{ ID }}</a>
-                        &nbsp;
-                        <button onclick="copyToClipboard('{{ request.host_url }}team/{{ ID }}')">copy</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
+    <h6 class="display-6">Active Calendars</h6>
 
-            If you need an ID for a different team, you can try going to <a href="/search">/search</a>.<br/>
-        </div>
-        <div class="two_columns_no_borders">
-            <h2>Competition Calendars</h2>
-            You can find the competition calendars already created in the table below:
-            <table>
-                <tr>
-                    <th>Competition</th>
-                    <th>Country</th>
-                    <th>ID</th>
-                    <th>Calendar URL</th>
-                </tr>
-                {% for (ID, name, country) in comp_list %}
-                <tr>
-                    <td>
-                        <img src="{{ url_for('get_logo', type='comp', id=ID) }}" alt="{{ name }}'s logo" width="50" style="vertical-align:middle">
-                        &nbsp;
-                        {{ name }}
-                    </td>
-                    <td> {{ country }} </td>
-                    <td> {{ ID }} </td>
-                    <td>
-                        <a href="{{ request.host_url }}comp/{{ ID }}">{{ request.host_url }}comp/{{ ID }}</a> 
-                        &nbsp;
-                        <button onclick="copyToClipboard('{{ request.host_url }}comp/{{ ID }}')">copy</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-
-            If you need an ID for a different competition, you can try going to <a href="/search-comp">/search-comp</a>.<br/>
-        </div>
+    <div class="form-check form-switch form-check-inline">
+        <input class="form-check-input" type="checkbox" role="switch" id="showTeamCals" value="showTeamCals"
+            onclick="toggleActiveTeamsDisplay();" checked>
+        <label class="form-check-label" for="showTeamCals">Show Team Calendars</label>
     </div>
+    <div class="form-check form-switch form-check-inline">
+        <input class="form-check-input" type="checkbox" role="switch" id="showCompCals" value="showCompCals"
+            onclick="toggleActiveCompsDisplay();" checked>
+        <label class="form-check-label" for="showCompCals">Show Competition Calendars</label>
+    </div>
+
+    <table class="table table-hover align-middle">
+        <tr>
+            <th class="fs-5"></th>
+            <th class="fs-5">Name</th>
+            <th class="fs-5">Country</th>
+            <th class="fs-5">Calendar URL</th>
+        </tr>
+        {% for ac in active_cals %}
+        <tr class="active-cals-tbl-isTeam-{{ ac.is_team }}">
+            <td><img src="{{ url_for('get_logo', type=('team' if ac.is_team else 'comp'), id=ac.id) }}"
+                    alt="{{ ac.name }}'s logo" width="50" style="vertical-align:middle"></td>
+            <td class="fs-5"> {{ ac.name }} </td>
+            <td class="fs-3"> {{ flag_map[ac.country] }} </td>
+            <td class="fs-5">
+                {% if ac.is_team %}
+                <a href="{{ url_for('team_cal', team_id=ac.id, _external=True) }}">{{ url_for('team_cal', team_id=ac.id,
+                    _external=True) }}</a>
+                &nbsp;
+                <button type="button" class="btn btn-outline-success btn-sm"
+                    onclick="copyToClipboard('{{ url_for('team_cal', team_id=ac.id, _external=True) }}')">copy</button>
+                {% else %}
+                <a href="{{ url_for('comp_cal', comp_id=ac.id, _external=True) }}">{{ url_for('comp_cal', comp_id=ac.id,
+                    _external=True) }}</a>
+                &nbsp;
+                <button type="button" class="btn btn-outline-success btn-sm"
+                    onclick="copyToClipboard('{{ url_for('comp_cal', comp_id=ac.id, _external=True) }}')">copy</button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h6><span class="badge text-bg-primary">Hint</span> If you cannot find the calendar you're looking for in the table
+        above, try the <a href="/search">search page</a>.</h6>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    function toggleActiveTeamsDisplay() {
+        toggleElementByClassName("active-cals-tbl-isTeam-True", !document.getElementById('showTeamCals').checked);
+    }
+
+    function toggleActiveCompsDisplay() {
+        toggleElementByClassName("active-cals-tbl-isTeam-False", !document.getElementById('showCompCals').checked);
+    }
+
+    function toggleElementByClassName(classname, show) {
+        Array.from(document.getElementsByClassName(classname)).forEach((el) => {
+            if (show) {
+                el.setAttribute("hidden", "hidden");
+            } else {
+                el.removeAttribute("hidden");
+            }
+        });
+    }
+</script>
 {% endblock %}

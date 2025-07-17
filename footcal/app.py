@@ -14,6 +14,7 @@ import search
 from custom_types import SearchQuotaExceeded
 from flask import Flask, flash, make_response, render_template, request
 from icalendar import Calendar, Event
+from utils import MAP_COUNTRY_TO_EMOJI
 
 app = Flask(__name__)
 app.debug = True
@@ -26,53 +27,33 @@ cache.setupDB(app)
 def index():
     return render_template(
         "index.html",
-        team_list=sorted(cache.list_cached_calendars(team=True), key=lambda x: x[1]),
-        comp_list=sorted(cache.list_cached_calendars(team=False), key=lambda x: x[1]),
+        active_cals=sorted(cache.list_cached_calendars(), key=lambda x: x.name.lower()),
+        flag_map=MAP_COUNTRY_TO_EMOJI,
     )
 
 
 @app.route("/search/", methods=("GET", "POST"))
 def search_ID():
     if request.method == "POST":
-        query = request.form.get("query", "").strip()
+        search_query = request.form.get("query", "").strip()
+        team_search = request.form.get("gridRadios", "teams").strip() == "teams"
 
-        if not query:
+        if not search_query:
             flash("Cannot perform a blank search, please go back and try again.")
 
         else:
-            try:
-                teams = search.search_teams(query)
-                return render_template(
-                    "results.html", query=query, team=True, teams=teams
-                )
-            except SearchQuotaExceeded:
-                flash(
-                    "The search couldn't be performed because we have exceeded our daily quota for performing searches. Sorry about that!\nYou can try again later."
-                )
 
-    return render_template("search.html", team=True)
+            if team_search:
+                results = search.search_teams(search_query)
 
+            else:
+                results = search.search_comps(search_query)
 
-@app.route("/search-comp/", methods=("GET", "POST"))
-def search_comp_ID():
-    if request.method == "POST":
-        query = request.form.get("query", "").strip()
+            return render_template(
+                "results.html", query=search_query, team=team_search, results=results
+            )
 
-        if not query:
-            flash("Cannot perform a blank search, please go back and try again.")
-
-        else:
-            try:
-                comps = search.search_comps(query)
-                return render_template(
-                    "results.html", query=query, team=False, comps=comps
-                )
-            except SearchQuotaExceeded:
-                flash(
-                    "The search couldn't be performed because we have exceeded our daily quota for performing searches. Sorry about that!\nYou can try again later."
-                )
-
-    return render_template("search.html", team=False)
+    return render_template("search.html")
 
 
 @app.route("/help/", methods=("GET",))

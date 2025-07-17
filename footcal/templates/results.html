@@ -1,58 +1,68 @@
 {% extends 'base.html' %}
 
+{% block title %} - Search Results{% endblock %}
+{% block tag %}<span class="display-6">&nbsp;Search Results</span>{% endblock %}
+
 {% block content %}
-    <h1>{% block title %} (search results){% endblock %}</h1>
-    Matching {{ "teams" if team else "competitions" }} for query="{{ query }}":
-    
+<div class="container p-3 text-center bg-body-tertiary rounded-3">
+  <h4 class="display-4">Search Results</h4>
+  <p class="col-lg-8 mx-auto fs-5">
+    Matching {{ "teams" if team else "competitions" }} for query=<code>"{{ query }}"</code>
+  </p>
+
+  <table class="table table-hover align-middle">
+
     {% if team %}
-        <table>
-            <tr>
-                <th></th>
-                <th>ID</th>
-                <th>Team Name</th>
-                <th>Short Name</th>
-                <th>Country</th>
-                <th>Founded</th>
-                <th>Get Calendar</th>
-            </tr>
-          {% for t in teams %}
-            <tr>
-                <td><img src="{{ t.logo }}" alt="{{ t.name }}'s logo"></td>
-                <td>{{ t.id }}</td>
-                <td>{{ t.name }}</td>
-                <td>{{ t.short_name }}</td>
-                <td>{{ t.country }}</td>
-                <td>{{ t.founded }}</td>
-                <td><button onclick="copyToClipboard('{{ request.host_url }}team/{{ t.id }}')">copy calendar URL</button></td>
-            </tr>
-          {% endfor %}
-        </table>
+    <tr>
+      <th></th>
+      <th>ID</th>
+      <th>Team Name</th>
+      <th>Short Name</th>
+      <th>Country</th>
+      <th>Founded</th>
+      <th>Get Calendar</th>
+    </tr>
+    {% for t in results %}
+    <tr>
+      <td><img src="{{ t.logo }}" alt="{{ t.name }}'s logo"></td>
+      <td>{{ t.id }}</td>
+      <td>{{ t.name }}</td>
+      <td>{{ t.short_name }}</td>
+      <td>{{ t.country }}</td>
+      <td>{{ t.founded }}</td>
+      <td><button type="button" class="btn btn-outline-success btn-sm"
+          onclick="copyToClipboard('{{ url_for('team_cal', team_id=t.id, _external=True) }}')">copy calendar
+          URL</button></td>
+    </tr>
+    {% endfor %}
     {% else %}
-        <table>
-            <tr>
-                <th></th>
-                <th>ID</th>
-                <th>Competition Name</th>
-                <th>Type</th>
-                <th>Country</th>
-                <th>Most Recent Season</th>
-                <th>Season Start</th>
-                <th>Season End</th>
-                <th>Get Calendar</th>
-            </tr>
-          {% for c in comps %}
-            <tr>
-                <td><img src="{{ c.logo }}" alt="{{ c.name }}'s logo"></td>
-                <td>{{ c.id }}</td>
-                <td>{{ c.name }}</td>
-                <td>{{ c.type }}</td>
-                <td>{{ c.country_name }}</td>
-                <td>{{ c.season }}</td>
-                <td>{{ c.season_start }}</td>
-                <td>{{ c.season_end }}</td>
-                <td><button onclick="copyToClipboard('{{ request.host_url }}comp/{{ c.id }}')">copy calendar URL</button></td>
-            </tr>
-          {% endfor %}
-        </table>
+    <tr>
+      <th></th>
+      <th>ID</th>
+      <th>Competition Name</th>
+      <th>Type</th>
+      <th>Country</th>
+      <th>Most Recent Season</th>
+      <th>Season Start</th>
+      <th>Season End</th>
+      <th>Get Calendar</th>
+    </tr>
+    {% for c in results %}
+    <tr>
+      <td><img src="{{ c.logo }}" alt="{{ c.name }}'s logo"></td>
+      <td>{{ c.id }}</td>
+      <td>{{ c.name }}</td>
+      <td>{{ c.type }}</td>
+      <td>{{ c.country_name }}</td>
+      <td>{{ c.season }}</td>
+      <td>{{ c.season_start }}</td>
+      <td>{{ c.season_end }}</td>
+      <td><button type="button" class="btn btn-outline-success btn-sm"
+          onclick="copyToClipboard('{{ url_for('comp_cal', comp_id=c.id, _external=True) }}')">copy calendar
+          URL</button></td>
+    </tr>
+    {% endfor %}
     {% endif %}
+  </table>
+</div>
 {% endblock %}

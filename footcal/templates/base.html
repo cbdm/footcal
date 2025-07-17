@@ -1,80 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    {% block head%} {% endblock %}
-    <title>FootCal{% block title %} {% endblock %}</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Footcal{% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/static/favicon/site.webmanifest">
+    {% block head %}{% endblock %}
+</head>
 
-        .website_title {
-            color: #009129;
-            font-size: 3em;
-            text-decoration: none;
-        }
+<body>
+    <div id="page-header" class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
+                <span class="display-6">⚽ FootCal 🗓️</span>
+                {% block tag %}{% endblock %}
+            </div>
+            <ul class="nav">
+                <li class="nav-item"><a href="/" class="nav-link"><i class="bi bi-house"></i> Home</a></li>
+                <li class="nav-item"><a href="/search" class="nav-link"><i class="bi bi-search"></i> Search</a></li>
+                <li class="nav-item"><a href="/help" class="nav-link"><i class="bi bi-patch-question"></i> Help</a></li>
+                {% block navbar %}{% endblock %}
+            </ul>
+        </header>
+    </div>
 
-        /* Create two equal columns that floats next to each other */
-        .two_columns_no_borders {
-            float: left;
-            width: 50%;
-            padding: 10px;
-        }
+    <div id="page-content">{% block content %}{% endblock %}</div>
 
-        /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-        @media screen and (max-width: 900px) {
-            .two_columns_no_borders {
-                width: 100%;
-            }
-        }
+    <div id="footer" class="container">
+        <footer class="py-3 my-4">
+            <p class="text-center text-body-secondary border-top">
+                Made by <a target="_blank" rel="noreferrer noopener" href="https://cbdm.app/">Caio</a>
+                <i class="bi bi-three-dots"></i>
+                <a target="_blank" rel="noreferrer noopener" href="https://github.com/cbdm/footcal/">Source Code</a>
+                <i class="bi bi-three-dots"></i>
+                <a href="mailto:footcal@cbdm.app">footcal@cbdm.app</a>
+            </p>
+        </footer>
+    </div>
 
-        /* Clear floats after the columns */
-        .row:after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
-        h2 {
-            color: #009129;
-        }
-
-        .nav_bar {
-            color: #555555;
-            font-size: 2em;
-            margin-left: 75px;
-            text-decoration: none;
-        }
-
-        .alert {
-            font-size: large;
-            color: #d64161;
-            border-color: #555555;
-            border-width: 5px;
-            border-style: dotted;
-            width: 350px;
-        }
-
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-            }
-
-        tr:nth-child(even) {
-        background-color: #dddddd;
-        }
-        
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-8LKP8GN8SB"></script>
     <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-    gtag('config', 'G-8LKP8GN8SB');
+        gtag('config', 'G-8LKP8GN8SB');
     </script>
     <script>
         function copyToClipboard(copyText) {
@@ -85,25 +66,7 @@
             });
         }
     </script>
-</head>
-<body>
-    <nav>
-        <a class="website_title" href="{{ url_for('index') }}">FootCal</a>
-        <a class="nav_bar" href="{{ url_for('help_page') }}">help</a>
-        <a class="nav_bar" href="{{ url_for('search_ID') }}">search team</a>
-        <a class="nav_bar" href="{{ url_for('search_comp_ID') }}">search competition</a>
-    </nav>
-    <hr>
-    <div class="content">
-        {% for message in get_flashed_messages() %}
-            <div class="alert">{{ message }}</div>
-        {% endfor %}
-        {% block content %} {% endblock %}
-    </div>
+    {% block scripts %}{% endblock %}
 </body>
-<footer>
-    {% block footer %} {% endblock %}
-    <hr />
-    If you want to <a href="https://github.com/cbdm/footcal">contribute to the project</a>, or have any suggestions, <a href="mailto:footcal@cbdm.app">get in touch! (footcal@cbdm.app)</a>
-</footer>
+
 </html>

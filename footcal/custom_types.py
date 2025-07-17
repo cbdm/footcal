@@ -44,6 +44,14 @@ class Competition:
     logo: str
 
 
+@dataclass
+class ActiveCalendar:
+    id: int
+    is_team: bool
+    name: str
+    country: str
+
+
 class SearchQuotaExceeded(Exception):
     "Raised when there is no more available quota for search requests."
 

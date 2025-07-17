@@ -92,7 +92,7 @@ def parse_matches(mresp: str) -> List[Match]:
 
 def fetch_team(
     team_id: str,
-    num_next_games: int = 15,
+    num_next_games: int = 10,
     num_last_games: int = 5,
 ) -> List[Match]:
     # Check if we have this calendar cached.
