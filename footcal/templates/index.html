@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container p-3 text-center bg-body-tertiary rounded-3">
-    <h4 class="display-4">Welcome to FootCal!</h4>
+    <h4 class="display-4">Welcome to <span class="text-success">Foot</span><span class="text-secondary">Cal</span>!</h4>
     <p class="col-lg-8 mx-auto fs-5">
         This app lets you add the games of your favorite teams and competitions to your calendar.
         You can find calendars already created below, and can create new ones with our <a href="/search">search
@@ -53,7 +53,7 @@
         </tr>
         {% endfor %}
     </table>
-    <h6><span class="badge text-bg-primary">Hint</span> If you cannot find the calendar you're looking for in the table
+    <h6><span class="badge text-bg-success">Hint</span> If you cannot find the calendar you're looking for in the table
         above, try the <a href="/search">search page</a>.</h6>
 </div>
 {% endblock %}
