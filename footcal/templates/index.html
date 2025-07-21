@@ -60,19 +60,19 @@
 {% block scripts %}
 <script>
     function toggleActiveTeamsDisplay() {
-        toggleElementByClassName("active-cals-tbl-isTeam-True", !document.getElementById('showTeamCals').checked);
+        toggleElementByClassName("active-cals-tbl-isTeam-True", document.getElementById('showTeamCals').checked);
     }
 
     function toggleActiveCompsDisplay() {
-        toggleElementByClassName("active-cals-tbl-isTeam-False", !document.getElementById('showCompCals').checked);
+        toggleElementByClassName("active-cals-tbl-isTeam-False", document.getElementById('showCompCals').checked);
     }
 
     function toggleElementByClassName(classname, show) {
         Array.from(document.getElementsByClassName(classname)).forEach((el) => {
             if (show) {
-                el.setAttribute("hidden", "hidden");
-            } else {
                 el.removeAttribute("hidden");
+            } else {
+                el.setAttribute("hidden", "hidden");
             }
         });
     }
